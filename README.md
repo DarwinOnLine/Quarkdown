@@ -33,6 +33,9 @@ cd my-blog
 # Copy the template as your site root
 cp -r template/* .
 
+# Install the pre-commit hook (rebuilds OG pages automatically)
+cp hooks/pre-commit .git/hooks/pre-commit
+
 # Start the dev server (default: port 8000)
 python3 server.py
 # → http://localhost:8000
@@ -128,6 +131,29 @@ your-site/
 ]
 ```
 
+## Adding a Language
+
+To add a new language (e.g. Spanish `es`):
+
+1. **Create content** — `home-es.md` and `posts/es/index.json` (+ translated posts)
+2. **Register the language** in your Quarkdown config (`index.html`):
+   ```javascript
+   languages: ['en', 'fr', 'es'],
+   translations: {
+       // ...existing...
+       es: {
+           nav: { home: 'Inicio', blog: 'Blog' },
+           blog: { title: 'Blog', noPosts: 'No hay artículos.', readMore: 'Leer más' },
+           pagination: { previous: 'Anterior', next: 'Siguiente' },
+           date: { locale: 'es-ES' },
+       },
+   },
+   ```
+3. **Update `quarkdown.og.json`** (or `build-og.js`) — add `"es"` to the `languages` array
+4. **Rebuild OG pages** — `node build-og.js` (or let the pre-commit hook handle it)
+
+The pre-commit hook detects languages automatically from `posts/*/index.json`, so no hook update is needed.
+
 ## Theming
 
 Override CSS custom properties to customize the look:
@@ -154,6 +180,16 @@ Generate static HTML files with proper OG meta tags for social sharing on GitHub
 ```bash
 node src/og-builder.js --config quarkdown.og.json
 ```
+
+## Git Hook (recommended)
+
+A pre-commit hook is provided to automatically rebuild OG pages before each commit:
+
+```bash
+cp hooks/pre-commit .git/hooks/pre-commit
+```
+
+This ensures `fr/` and `en/` OG pages always stay in sync with your post index.
 
 ## Architecture
 

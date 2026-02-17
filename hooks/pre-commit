@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# Quarkdown pre-commit hook
+# Rebuilds OG meta pages before each commit so they stay in sync.
+# Languages are detected automatically from posts/*/index.json.
+#
+# Install: cp hooks/pre-commit .git/hooks/pre-commit
+
+ROOT="$(git rev-parse --show-toplevel)"
+
+# Ensure node is available (nvm doesn't export PATH in non-interactive shells)
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+
+# Build OG meta pages
+node "$ROOT/build-og.js" || exit 1
+
+# Stage generated OG directories (one per language from posts/*/index.json)
+for index in "$ROOT"/posts/*/index.json; do
+    lang="$(basename "$(dirname "$index")")"
+    [ -d "$ROOT/$lang" ] && git add "$ROOT/$lang/"
+done
