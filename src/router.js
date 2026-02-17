@@ -62,7 +62,7 @@ export class Router {
     let path = window.location.pathname || '/';
 
     // Extract language prefix
-    const langPattern = new RegExp(`^\\/(${this.languages.join('|')})(\\/|$)`);
+    const langPattern = new RegExp(`^\\/(${this.languages.join('|')})(?=\\/|$)`);
     const langMatch = path.match(langPattern);
     let lang = null;
 

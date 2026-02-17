@@ -1,3 +1,23 @@
-node_modules/
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
 .DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Temporary files
+*.tmp
+*.bak
 *.log
+
+# Build artifacts
+dist/
+build/

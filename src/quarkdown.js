@@ -76,7 +76,7 @@ export class Quarkdown {
   async start() {
     // Detect initial language from URL
     const path = window.location.pathname || '/';
-    const langPattern = new RegExp(`^\\/(${this.config.languages.join('|')})(\\/|$)`);
+    const langPattern = new RegExp(`^\\/(${this.config.languages.join('|')})(?=\\/|$)`);
     const langMatch = path.match(langPattern);
     this.i18n.resolve(langMatch?.[1] || null);
 
