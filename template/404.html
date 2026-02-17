@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <base href="/" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" type="text/css" media="screen" href="themes/default.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+        <title>404 - Page Not Found</title>
+    </head>
+    <body>
+        <div class="cursor-dot" id="cursorDot"></div>
+        <div id="content"></div>
+
+        <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js"></script>
+
+        <script type="module">
+            import { Quarkdown } from './src/quarkdown.js';
+
+            const app = new Quarkdown({
+                siteName: 'My Blog',
+                baseUrl: 'https://example.github.io',
+                languages: ['en'],
+                defaultLanguage: 'en',
+                cursorDot: true,
+                starfield404: true,
+                translations: {
+                    en: {
+                        nav: { home: 'Home', blog: 'Blog' },
+                        blog: { title: 'Blog', noPosts: 'No posts yet.' },
+                        pagination: { previous: 'Previous', next: 'Next' },
+                        date: { locale: 'en-US' },
+                    },
+                },
+            });
+
+            app.start();
+        </script>
+    </body>
+</html>

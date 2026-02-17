@@ -1,0 +1,24 @@
+{
+  "name": "quarkdown",
+  "version": "1.0.0",
+  "description": "Zero-dependency Markdown SPA blog engine for GitHub Pages",
+  "type": "module",
+  "main": "src/quarkdown.js",
+  "scripts": {
+    "build-og": "node src/og-builder.js",
+    "serve": "python3 template/server.py"
+  },
+  "keywords": [
+    "markdown",
+    "blog",
+    "spa",
+    "github-pages",
+    "vanilla-js",
+    "i18n"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DarwinOnLine/quarkdown"
+  }
+}
