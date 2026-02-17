@@ -126,7 +126,7 @@ your-site/
     "description": "A short description for the listing.",
     "tags": ["Tech", "Tutorial"],
     "image": "assets/images/posts/my-first-post/cover.jpg",
-    "i18nSlug": "mon-premier-article"
+    "i18nSlugs": { "fr": "mon-premier-article" }
   }
 ]
 ```
@@ -136,7 +136,11 @@ your-site/
 To add a new language (e.g. Spanish `es`):
 
 1. **Create content** — `home-es.md` and `posts/es/index.json` (+ translated posts)
-2. **Register the language** in your Quarkdown config (`index.html`):
+2. **Link translations** — In each post's `index.json`, use `i18nSlugs` to map each translated language to its slug:
+   ```json
+   { "slug": "my-post", "i18nSlugs": { "fr": "mon-article", "es": "mi-articulo" } }
+   ```
+3. **Register the language** in your Quarkdown config (`index.html`):
    ```javascript
    languages: ['en', 'fr', 'es'],
    translations: {
@@ -149,8 +153,8 @@ To add a new language (e.g. Spanish `es`):
        },
    },
    ```
-3. **Update `quarkdown.og.json`** (or `build-og.js`) — add `"es"` to the `languages` array
-4. **Rebuild OG pages** — `node build-og.js` (or let the pre-commit hook handle it)
+4. **Update `quarkdown.og.json`** (or `build-og.js`) — add `"es"` to the `languages` array
+5. **Rebuild OG pages** — `node build-og.js` (or let the pre-commit hook handle it)
 
 The pre-commit hook detects languages automatically from `posts/*/index.json`, so no hook update is needed.
 

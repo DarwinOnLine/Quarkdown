@@ -105,14 +105,14 @@ export class Quarkdown {
   }
 
   /** Build language switcher HTML */
-  languageSwitcher(otherLangPath = null) {
+  languageSwitcher(i18nSlugs = null) {
     const lang = this.i18n.currentLang;
     const currentPath = window.location.pathname.replace(new RegExp(`^\\/(${this.config.languages.join('|')})`), '') || '/';
 
     return this.config.languages.map(l => {
       let targetPath;
-      if (otherLangPath && l !== lang) {
-        targetPath = `/${l}/blog/${otherLangPath}`;
+      if (i18nSlugs && i18nSlugs[l]) {
+        targetPath = `/${l}/blog/${i18nSlugs[l]}`;
       } else {
         targetPath = `/${l}${currentPath}`;
       }
@@ -164,7 +164,7 @@ export class Quarkdown {
     return {
       lang: this.i18n.currentLang,
       t: (key) => this.t(key),
-      nav: (otherLangPath) => this.languageSwitcher(otherLangPath),
+      nav: (i18nSlugs) => this.languageSwitcher(i18nSlugs),
       formatDate: (d) => this.formatDate(d),
       navigateTo: (p) => this.navigateTo(p),
       siteName: this.config.siteName,
@@ -280,7 +280,7 @@ export class Quarkdown {
         this.container.innerHTML = `
           <div class="post-page">
             <nav class="main-nav">
-              ${post.i18nSlug ? `<div class="lang-switcher">${ctx.nav(post.i18nSlug)}</div>` : ''}
+              ${post.i18nSlugs ? `<div class="lang-switcher">${ctx.nav(post.i18nSlugs)}</div>` : ''}
               <a href="/${ctx.lang}">${ctx.t('nav.home')}</a>
               <a href="/${ctx.lang}/blog">${ctx.t('nav.blog')}</a>
             </nav>
