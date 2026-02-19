@@ -8,6 +8,8 @@
         <link rel="stylesheet" type="text/css" media="screen" href="themes/default.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
         <title>My Blog</title>
+        <!-- RSS Feed -->
+        <link rel="alternate" type="application/rss+xml" title="Blog RSS" href="/en/feed.xml" />
         <!-- Open Graph -->
         <meta property="og:type" content="website" />
         <meta property="og:title" content="My Blog" />
@@ -43,6 +45,7 @@
                 postsPerPage: 10,
                 cursorDot: true,
                 starfield404: true,
+                feedFileName: 'feed.xml',
                 translations: {
                     en: {
                         nav: { home: 'Home', blog: 'Blog' },

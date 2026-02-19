@@ -12,6 +12,7 @@ Zero-dependency Markdown SPA blog engine for GitHub Pages.
 - **i18n** — multi-language support with auto-detection and language switcher
 - **Blog engine** — post index, pagination with ellipsis, tags
 - **Open Graph builder** — static OG meta pages for GitHub Pages social sharing
+- **RSS feed builder** — generates RSS 2.0 feeds for each language
 - **Embedded scripts** — execute `<script>` tags inside Markdown posts
 - **Starfield 404** — interactive canvas animation with warp speed effect
 - **Cursor dot** — decorative mouse-following dot (optional)
@@ -65,6 +66,7 @@ const app = new Quarkdown({
   // Features
   cursorDot: true,                // Mouse-following dot
   starfield404: true,             // Starfield 404 page
+  feedFileName: 'feed.xml',       // RSS feed (set to null to disable)
 
   // Meta
   defaultImage: 'assets/images/default-og.png',
@@ -185,15 +187,54 @@ Generate static HTML files with proper OG meta tags for social sharing on GitHub
 node src/og-builder.js --config quarkdown.og.json
 ```
 
+## RSS Feed Builder
+
+Generate RSS 2.0 feeds for each language from your posts index:
+
+```bash
+node src/rss-builder.js --config quarkdown.og.json
+```
+
+Or use programmatically in a `build-rss.js` file:
+
+```javascript
+import { buildRSSFeeds } from './src/rss-builder.js';
+
+buildRSSFeeds({
+    baseUrl: 'https://username.github.io',
+    siteName: 'My Blog',
+    siteDescription: 'My personal blog about tech and life',
+    languages: ['en', 'fr'],
+    postsDir: 'posts',
+    defaultImage: 'assets/images/default-og.png',
+    rootDir: import.meta.dirname,
+    feedFileName: 'feed.xml',  // default
+    maxItems: 20,              // default
+});
+```
+
+This generates `{lang}/feed.xml` for each language (e.g. `en/feed.xml`, `fr/feed.xml`).
+
+### Add RSS link to your HTML
+
+Add these links in your `index.html` `<head>` section:
+
+```html
+<link rel="alternate" type="application/rss+xml" title="Blog RSS (EN)" href="/en/feed.xml" />
+<link rel="alternate" type="application/rss+xml" title="Blog RSS (FR)" href="/fr/feed.xml" />
+```
+
 ## Git Hook (recommended)
 
-A pre-commit hook is provided to automatically rebuild OG pages before each commit:
+A pre-commit hook is provided to automatically rebuild OG pages and RSS feeds before each commit:
 
 ```bash
 cp hooks/pre-commit .git/hooks/pre-commit
 ```
 
-This ensures `fr/` and `en/` OG pages always stay in sync with your post index.
+This ensures `fr/` and `en/` OG pages and RSS feeds always stay in sync with your post index.
+
+**Note:** RSS feeds are only generated if a `build-rss.js` file exists in your project root.
 
 ## Docker
 
@@ -249,6 +290,7 @@ docker compose up -d
 | `meta.js` | OG/Twitter meta tag management |
 | `effects.js` | Cursor dot, starfield 404 |
 | `og-builder.js` | Static OG page generator (Node.js) |
+| `rss-builder.js` | RSS 2.0 feed generator (Node.js) |
 
 ## License
 

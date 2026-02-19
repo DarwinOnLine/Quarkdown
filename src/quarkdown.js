@@ -23,6 +23,7 @@ export class Quarkdown {
    * @param {string} [config.defaultImage] - Default OG image path relative to baseUrl
    * @param {boolean} [config.cursorDot] - Enable cursor dot effect (default: false)
    * @param {boolean} [config.starfield404] - Enable starfield 404 page (default: true)
+   * @param {string} [config.feedFileName] - RSS feed file name (e.g. 'feed.xml'), null to disable
    * @param {Function} [config.renderHome] - Custom home page renderer (html, ctx) => string
    * @param {Function} [config.renderBlog] - Custom blog listing renderer (data, ctx) => string
    * @param {Function} [config.renderPost] - Custom post renderer (html, post, ctx) => string
@@ -42,6 +43,7 @@ export class Quarkdown {
       defaultImage: '',
       cursorDot: false,
       starfield404: true,
+      feedFileName: null,
       ...config,
     };
 
@@ -161,13 +163,16 @@ export class Quarkdown {
   }
 
   _ctx() {
+    const lang = this.i18n.currentLang;
+    const feedUrl = this.config.feedFileName ? `/${lang}/${this.config.feedFileName}` : null;
     return {
-      lang: this.i18n.currentLang,
+      lang,
       t: (key) => this.t(key),
       nav: (i18nSlugs) => this.languageSwitcher(i18nSlugs),
       formatDate: (d) => this.formatDate(d),
       navigateTo: (p) => this.navigateTo(p),
       siteName: this.config.siteName,
+      feedUrl,
     };
   }
 
@@ -245,13 +250,22 @@ export class Quarkdown {
         </nav>`;
       }
 
+      const rssLink = ctx.feedUrl
+        ? `<a href="${ctx.feedUrl}" class="rss-link" title="RSS Feed" target="_blank" rel="noopener">
+            <svg class="rss-icon" viewBox="0 0 24 24" fill="currentColor"><circle cx="6.18" cy="17.82" r="2.18"/><path d="M4 4.44v2.83c7.03 0 12.73 5.7 12.73 12.73h2.83c0-8.59-6.97-15.56-15.56-15.56zm0 5.66v2.83c3.9 0 7.07 3.17 7.07 7.07h2.83c0-5.47-4.43-9.9-9.9-9.9z"/></svg>
+           </a>`
+        : '';
+
       this.container.innerHTML = `
         <div class="blog-page">
           <nav class="main-nav">
             <div class="lang-switcher">${ctx.nav()}</div>
             <a href="/${ctx.lang}">${ctx.t('nav.home')}</a>
           </nav>
-          <h1>${ctx.t('blog.title')}<span class="dot">.</span></h1>
+          <div class="blog-header">
+            <h1>${ctx.t('blog.title')}<span class="dot">.</span></h1>
+            ${rssLink}
+          </div>
           <div class="posts-list">
             ${postsHTML || `<p>${ctx.t('blog.noPosts')}</p>`}
           </div>

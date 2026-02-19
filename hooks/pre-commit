@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Quarkdown pre-commit hook
-# Rebuilds OG meta pages before each commit so they stay in sync.
+# Rebuilds OG meta pages and RSS feeds before each commit so they stay in sync.
 # Languages are detected automatically from posts/*/index.json.
 #
 # Install: cp hooks/pre-commit .git/hooks/pre-commit
@@ -15,7 +15,10 @@ export NVM_DIR="$HOME/.nvm"
 # Build OG meta pages
 node "$ROOT/build-og.js" || exit 1
 
-# Stage generated OG directories (one per language from posts/*/index.json)
+# Build RSS feeds (optional - only if build-rss.js exists)
+[ -f "$ROOT/build-rss.js" ] && node "$ROOT/build-rss.js"
+
+# Stage generated directories (one per language from posts/*/index.json)
 for index in "$ROOT"/posts/*/index.json; do
     lang="$(basename "$(dirname "$index")")"
     [ -d "$ROOT/$lang" ] && git add "$ROOT/$lang/"
