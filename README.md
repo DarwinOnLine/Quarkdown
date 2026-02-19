@@ -21,8 +21,8 @@ Zero-dependency Markdown SPA blog engine for GitHub Pages.
 
 ## Prerequisites
 
-- **Python 3** — required to run the local dev server (`server.py`)
-- **Node.js** — only needed if you use the Open Graph builder (`og-builder.js`)
+- **Node.js** (recommended) — to run the local dev server and build tools (OG builder, RSS builder)
+- **Python 3** (optional) — alternative dev server if you can't install Node.js
 
 ## Quick Start
 
@@ -37,13 +37,21 @@ cp -r template/* .
 # Install the pre-commit hook (rebuilds OG pages automatically)
 cp hooks/pre-commit .git/hooks/pre-commit
 
+# Start the dev server (default: port 8080)
+npx http-server
+
+# Or specify a custom port
+npx http-server -p 3000
+```
+
+**Alternative (Python):** If you can't or don't want to install Node.js:
+
+```bash
 # Start the dev server (default: port 8000)
 python3 server.py
-# → http://localhost:8000
 
 # Or specify a custom port
 python3 server.py 3000
-# → http://localhost:3000
 ```
 
 ## Configuration
