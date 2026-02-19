@@ -1,0 +1,13 @@
+services:
+  quarkdown:
+    image: ghcr.io/darwinonline/quarkdown:latest
+    # Or build locally:
+    # build:
+    #   context: ..
+    #   dockerfile: docker/Dockerfile
+    ports:
+      - "8080:80"
+    volumes:
+      # Mount your entire site content (src/ and themes/ are added automatically)
+      - ./my-site:/usr/share/nginx/html:ro
+    restart: unless-stopped

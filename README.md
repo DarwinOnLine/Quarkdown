@@ -195,6 +195,48 @@ cp hooks/pre-commit .git/hooks/pre-commit
 
 This ensures `fr/` and `en/` OG pages always stay in sync with your post index.
 
+## Docker
+
+A public Docker image is available for those who prefer containerized deployment.
+
+### Quick Start (demo)
+
+```bash
+docker run -d -p 8080:80 ghcr.io/darwinonline/quarkdown:latest
+```
+
+Then open http://localhost:8080
+
+### With Your Own Content
+
+Mount your site folder — the Quarkdown engine (`src/`, `themes/`) is injected automatically:
+
+```bash
+docker run -d -p 8080:80 \
+  -v $(pwd)/my-site:/usr/share/nginx/html:ro \
+  ghcr.io/darwinonline/quarkdown:latest
+```
+
+Your `my-site/` folder should contain:
+```
+my-site/
+├── index.html       # Your Quarkdown config
+├── 404.html
+├── home-en.md       # Home page(s)
+└── posts/           # Your articles
+    └── en/
+        ├── index.json
+        └── *.md
+```
+
+### Docker Compose
+
+```bash
+curl -O https://raw.githubusercontent.com/DarwinOnLine/quarkdown/main/docker/docker-compose.yml
+# Edit the volume path, then:
+docker compose up -d
+```
+
 ## Architecture
 
 | Module | Role |

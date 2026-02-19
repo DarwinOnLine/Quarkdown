@@ -1,0 +1,29 @@
+# Git
+.git
+.gitignore
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Docker
+docker/docker-compose.yml
+Dockerfile
+
+# CI/CD
+.github
+
+# Documentation
+README.md
+LICENSE
+CLAUDE.md
+
+# Development
+hooks/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
