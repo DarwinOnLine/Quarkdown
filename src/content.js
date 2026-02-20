@@ -45,6 +45,18 @@ export class ContentLoader {
     });
   }
 
+  /** Add anchor IDs to headings for deep linking */
+  addHeadingAnchors(container) {
+    container.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach((heading) => {
+      if (heading.id) return;
+      heading.id = heading.textContent.trim()
+        .toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+    });
+  }
+
   /** Open external links in a new tab (skips links that already have a target attribute) */
   openExternalLinks(container) {
     container.querySelectorAll('a[href^="http"]:not([target])').forEach((a) => {

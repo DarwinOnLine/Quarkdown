@@ -202,6 +202,7 @@ export class Quarkdown {
         `;
       }
       this.content.highlightCode(this.container);
+      this.content.addHeadingAnchors(this.container);
       if (this.config.externalLinksNewTab) this.content.openExternalLinks(this.container);
       this.meta.update();
     } catch (error) {
@@ -309,6 +310,7 @@ export class Quarkdown {
         `;
       }
       this.content.highlightCode(this.container);
+      this.content.addHeadingAnchors(this.container);
       if (this.config.externalLinksNewTab) this.content.openExternalLinks(this.container);
       this.content.executeScripts(this.container);
       this.meta.update(post);
