@@ -491,6 +491,7 @@ body::before {
 .post-content pre {
     background: var(--qd-code-bg);
     padding: 1.5rem;
+    margin: 2rem 0;
     overflow-x: auto;
     border: 2px solid #1a1a1a;
     border-left: 4px solid var(--qd-accent);
@@ -739,4 +740,29 @@ body::before {
         font-size: 0.75rem;
         min-width: 30px;
     }
+}
+
+/* Tables */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 2rem 0;
+    font-size: 0.95rem;
+}
+
+th, td {
+    padding: 0.6rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--qd-border);
+}
+
+th {
+    color: var(--qd-heading);
+    font-weight: 700;
+    border-bottom: 2px solid var(--qd-accent);
+}
+
+tr:hover {
+    background: rgba(255, 255, 255, 0.03);
 }
