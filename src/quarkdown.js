@@ -24,6 +24,7 @@ export class Quarkdown {
    * @param {boolean} [config.cursorDot] - Enable cursor dot effect (default: false)
    * @param {boolean} [config.starfield404] - Enable starfield 404 page (default: true)
    * @param {string} [config.feedFileName] - RSS feed file name (e.g. 'feed.xml'), null to disable
+   * @param {boolean} [config.externalLinksNewTab] - Open external links in new tab (default: true)
    * @param {Function} [config.renderHome] - Custom home page renderer (html, ctx) => string
    * @param {Function} [config.renderBlog] - Custom blog listing renderer (data, ctx) => string
    * @param {Function} [config.renderPost] - Custom post renderer (html, post, ctx) => string
@@ -44,6 +45,7 @@ export class Quarkdown {
       cursorDot: false,
       starfield404: true,
       feedFileName: null,
+      externalLinksNewTab: true,
       ...config,
     };
 
@@ -200,6 +202,7 @@ export class Quarkdown {
         `;
       }
       this.content.highlightCode(this.container);
+      if (this.config.externalLinksNewTab) this.content.openExternalLinks(this.container);
       this.meta.update();
     } catch (error) {
       console.error('Quarkdown: Failed to load home page:', error);
@@ -306,6 +309,7 @@ export class Quarkdown {
         `;
       }
       this.content.highlightCode(this.container);
+      if (this.config.externalLinksNewTab) this.content.openExternalLinks(this.container);
       this.content.executeScripts(this.container);
       this.meta.update(post);
     } catch (error) {

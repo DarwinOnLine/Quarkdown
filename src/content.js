@@ -45,6 +45,14 @@ export class ContentLoader {
     });
   }
 
+  /** Open external links in a new tab (skips links that already have a target attribute) */
+  openExternalLinks(container) {
+    container.querySelectorAll('a[href^="http"]:not([target])').forEach((a) => {
+      a.setAttribute('target', '_blank');
+      a.setAttribute('rel', 'noopener noreferrer');
+    });
+  }
+
   /** Re-execute <script> tags injected via innerHTML */
   executeScripts(container) {
     container.querySelectorAll('script').forEach((oldScript) => {

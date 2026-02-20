@@ -75,6 +75,7 @@ const app = new Quarkdown({
   cursorDot: true,                // Mouse-following dot
   starfield404: true,             // Starfield 404 page
   feedFileName: 'feed.xml',       // RSS feed (set to null to disable)
+  externalLinksNewTab: true,      // Open external links in new tab
 
   // Meta
   defaultImage: 'assets/images/default-og.png',
