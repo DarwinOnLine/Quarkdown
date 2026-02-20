@@ -3,7 +3,7 @@
 // RSS feed builder for Quarkdown
 // Generates RSS 2.0 feeds for each language from posts index
 //
-// Usage: node rss-builder.js --config quarkdown.og.json
+// Usage: node rss-builder.js --config quarkdown.json
 // Or import and use programmatically
 
 import { readFileSync, writeFileSync, mkdirSync } from 'fs';
@@ -31,8 +31,8 @@ function toRFC822(dateStr) {
 /**
  * @param {Object} config
  * @param {string} config.baseUrl - Absolute URL (e.g. https://example.github.io)
- * @param {string} config.siteName - Site name
- * @param {string} config.siteDescription - Site description (optional, defaults to siteName)
+ * @param {string|Object} config.siteName - Site name (string or {lang: name} object)
+ * @param {string|Object} config.siteDescription - Site description (string or {lang: desc} object, defaults to siteName)
  * @param {string[]} config.languages - Language codes
  * @param {string} config.postsDir - Posts directory relative to rootDir
  * @param {string} config.defaultImage - Default image relative to baseUrl
@@ -40,6 +40,11 @@ function toRFC822(dateStr) {
  * @param {string} [config.feedFileName] - Feed file name (default: 'feed.xml')
  * @param {number} [config.maxItems] - Max items in feed (default: 20)
  */
+function resolveI18n(value, lang) {
+  if (typeof value === 'object' && value !== null) return value[lang] || Object.values(value)[0];
+  return value;
+}
+
 export function buildRSSFeeds(config) {
   const {
     baseUrl,
@@ -59,6 +64,8 @@ export function buildRSSFeeds(config) {
   function generateRSS(lang, posts) {
     const channelUrl = `${baseUrl}/${lang}`;
     const feedUrl = `${baseUrl}/${lang}/${feedFileName}`;
+    const langSiteName = resolveI18n(siteName, lang);
+    const langSiteDescription = resolveI18n(siteDescription, lang);
 
     // Sort by date descending and limit
     const sortedPosts = [...posts]
@@ -83,15 +90,15 @@ export function buildRSSFeeds(config) {
     return `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>${escapeXml(siteName)}</title>
+    <title>${escapeXml(langSiteName)}</title>
     <link>${channelUrl}</link>
-    <description>${escapeXml(siteDescription)}</description>
+    <description>${escapeXml(langSiteDescription)}</description>
     <language>${lang}</language>
     <lastBuildDate>${buildDate}</lastBuildDate>
     <atom:link href="${feedUrl}" rel="self" type="application/rss+xml" />
 ${defaultImg ? `    <image>
       <url>${defaultImg}</url>
-      <title>${escapeXml(siteName)}</title>
+      <title>${escapeXml(langSiteName)}</title>
       <link>${channelUrl}</link>
     </image>` : ''}
 ${items}

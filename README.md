@@ -163,7 +163,7 @@ To add a new language (e.g. Spanish `es`):
        },
    },
    ```
-4. **Update `quarkdown.og.json`** (or `build-og.js`) — add `"es"` to the `languages` array
+4. **Update `quarkdown.json`** — add `"es"` to the `languages` array
 5. **Rebuild OG pages** — `node build-og.js` (or let the pre-commit hook handle it)
 
 The pre-commit hook detects languages automatically from `posts/*/index.json`, so no hook update is needed.
@@ -192,7 +192,7 @@ Override CSS custom properties to customize the look:
 Generate static HTML files with proper OG meta tags for social sharing on GitHub Pages:
 
 ```bash
-node src/og-builder.js --config quarkdown.og.json
+node build-og.js
 ```
 
 ## RSS Feed Builder
@@ -200,28 +200,19 @@ node src/og-builder.js --config quarkdown.og.json
 Generate RSS 2.0 feeds for each language from your posts index:
 
 ```bash
-node src/rss-builder.js --config quarkdown.og.json
+node build-rss.js
 ```
 
-Or use programmatically in a `build-rss.js` file:
+Both scripts read their configuration from `quarkdown.json`. This generates `{lang}/feed.xml` for each language (e.g. `en/feed.xml`, `fr/feed.xml`).
 
-```javascript
-import { buildRSSFeeds } from './src/rss-builder.js';
+`siteName` and `siteDescription` support per-language values:
 
-buildRSSFeeds({
-    baseUrl: 'https://username.github.io',
-    siteName: 'My Blog',
-    siteDescription: 'My personal blog about tech and life',
-    languages: ['en', 'fr'],
-    postsDir: 'posts',
-    defaultImage: 'assets/images/default-og.png',
-    rootDir: import.meta.dirname,
-    feedFileName: 'feed.xml',  // default
-    maxItems: 20,              // default
-});
+```json
+{
+  "siteName": { "en": "My Blog", "fr": "Mon Blog" },
+  "siteDescription": { "en": "A personal blog", "fr": "Un blog personnel" }
+}
 ```
-
-This generates `{lang}/feed.xml` for each language (e.g. `en/feed.xml`, `fr/feed.xml`).
 
 ### Add RSS link to your HTML
 
@@ -242,7 +233,7 @@ cp hooks/pre-commit .git/hooks/pre-commit
 
 This ensures `fr/` and `en/` OG pages and RSS feeds always stay in sync with your post index.
 
-**Note:** RSS feeds are only generated if a `build-rss.js` file exists in your project root.
+Both `build-og.js` and `build-rss.js` are included in the template and copied during setup.
 
 ## Docker
 

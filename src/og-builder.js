@@ -3,7 +3,7 @@
 // Open Graph static page builder for GitHub Pages
 // Generates index.html files with proper OG meta tags for each route
 //
-// Usage: node og-builder.js --config quarkdown.og.json
+// Usage: node og-builder.js --config quarkdown.json
 // Or import and use programmatically
 
 import { readFileSync, writeFileSync, mkdirSync } from 'fs';
@@ -28,6 +28,11 @@ function escapeHtml(str) {
  * @param {string} [config.hljsTheme] - Highlight.js theme URL
  * @param {string[]} [config.scripts] - Script tags to include
  */
+function resolveI18n(value, lang) {
+  if (typeof value === 'object' && value !== null) return value[lang] || Object.values(value)[0];
+  return value;
+}
+
 export function buildOGPages(config) {
   const {
     baseUrl,
@@ -82,12 +87,13 @@ ${scriptTags}
   for (const lang of languages) {
     const indexPath = join(rootDir, postsDir, lang, 'index.json');
     const posts = JSON.parse(readFileSync(indexPath, 'utf-8'));
+    const langSiteName = resolveI18n(siteName, lang);
 
     // Lang root
     writeOGFile(join(rootDir, lang, 'index.html'), spaPage({
       ogType: 'website',
-      title: siteName,
-      description: siteName,
+      title: langSiteName,
+      description: langSiteName,
       image: defaultImg,
       url: `${baseUrl}/${lang}`,
     }));
@@ -95,7 +101,7 @@ ${scriptTags}
     // Blog listing
     writeOGFile(join(rootDir, lang, 'blog', 'index.html'), spaPage({
       ogType: 'website',
-      title: `Blog - ${siteName}`,
+      title: `Blog - ${langSiteName}`,
       description: 'Blog',
       image: defaultImg,
       url: `${baseUrl}/${lang}/blog`,
@@ -107,7 +113,7 @@ ${scriptTags}
         join(rootDir, lang, 'blog', post.slug, 'index.html'),
         spaPage({
           ogType: 'article',
-          title: `${post.title} - ${siteName}`,
+          title: `${post.title} - ${langSiteName}`,
           description: post.description,
           image: post.image ? `${baseUrl}/${post.image}` : defaultImg,
           url: `${baseUrl}/${lang}/blog/${post.slug}`,

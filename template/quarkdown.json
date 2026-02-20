@@ -1,6 +1,7 @@
 {
   "baseUrl": "https://example.github.io",
   "siteName": "My Blog",
+  "siteDescription": "My personal blog",
   "languages": ["en"],
   "postsDir": "posts",
   "defaultImage": "assets/images/default-og.png",
@@ -9,5 +10,7 @@
     "https://cdn.jsdelivr.net/npm/marked/marked.min.js",
     "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js",
     "https://cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js"
-  ]
+  ],
+  "feedFileName": "feed.xml",
+  "maxItems": 20
 }
