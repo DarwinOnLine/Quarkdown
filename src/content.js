@@ -57,6 +57,21 @@ export class ContentLoader {
     });
   }
 
+  /** Scroll to the current URL hash target and trigger highlight animation */
+  scrollToHash() {
+    const hash = window.location.hash;
+    if (!hash) return;
+    const target = document.querySelector(hash);
+    if (!target) return;
+    target.scrollIntoView();
+    if (target.classList.contains('anchor-highlight')) {
+      target.style.animation = 'none';
+      target.offsetHeight; // force reflow
+      target.style.animation = '';
+      target.classList.add('anchor-flash');
+    }
+  }
+
   /** Open external links in a new tab (skips links that already have a target attribute) */
   openExternalLinks(container) {
     container.querySelectorAll('a[href^="http"]:not([target])').forEach((a) => {

@@ -742,6 +742,18 @@ body::before {
     }
 }
 
+/* Anchor highlight */
+
+.anchor-highlight.anchor-flash {
+    animation: anchor-flash 2s ease;
+}
+
+@keyframes anchor-flash {
+    0%, 20%, 40% { background: var(--qd-accent); color: var(--qd-bg); border-radius: 3px; padding: 0 4px; }
+    10%, 30% { background: transparent; color: inherit; }
+    100% { background: transparent; color: inherit; }
+}
+
 /* Tables */
 
 table {
