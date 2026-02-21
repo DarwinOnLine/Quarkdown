@@ -7,6 +7,7 @@ import { ContentLoader } from './content.js';
 import { BlogEngine } from './blog.js';
 import { MetaManager } from './meta.js';
 import { initCursorDot, initStarfield } from './effects.js';
+import { Analytics } from './analytics.js';
 
 export class Quarkdown {
   /**
@@ -31,6 +32,7 @@ export class Quarkdown {
    * @param {Function} [config.render404] - Custom 404 renderer (ctx) => string
    * @param {Function} [config.renderNav] - Custom nav renderer (ctx) => string
    * @param {Function} [config.renderLoading] - Custom loading renderer () => string
+   * @param {Object} [config.analytics] - Analytics provider config (see Analytics class)
    */
   constructor(config) {
     this.config = {
@@ -69,6 +71,8 @@ export class Quarkdown {
       languages: this.config.languages,
       onRoute: (route) => this._handleRoute(route),
     });
+
+    this.analytics = this.config.analytics ? new Analytics(this.config.analytics) : null;
 
     if (this.config.cursorDot) initCursorDot();
 
@@ -128,6 +132,10 @@ export class Quarkdown {
   // --- Private ---
 
   async _handleRoute({ path, lang, params, routeId }) {
+    if (this.analytics) {
+      this.analytics.trackPageView(window.location.pathname);
+    }
+
     // Language change
     if (lang && lang !== this.i18n.currentLang) {
       this.i18n.currentLang = lang;
@@ -383,3 +391,4 @@ export { ContentLoader } from './content.js';
 export { BlogEngine } from './blog.js';
 export { MetaManager } from './meta.js';
 export { initCursorDot, initStarfield } from './effects.js';
+export { Analytics } from './analytics.js';

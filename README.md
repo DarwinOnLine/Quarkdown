@@ -16,6 +16,7 @@ Zero-dependency Markdown SPA blog engine for GitHub Pages.
 - **Embedded scripts** — execute `<script>` tags inside Markdown posts
 - **Starfield 404** — interactive canvas animation with warp speed effect
 - **Cursor dot** — decorative mouse-following dot (optional)
+- **Analytics** — provider-agnostic page view tracking (Umami, Plausible, Fathom, Google Analytics, or custom)
 - **Theming** — CSS custom properties for easy customization
 - **Zero build step** — works directly from a static file server
 
@@ -94,6 +95,12 @@ const app = new Quarkdown({
       pagination: { previous: 'Précédent', next: 'Suivant' },
       date: { locale: 'fr-FR' },
     },
+  },
+
+  // Analytics (optional — see Analytics section below)
+  analytics: {
+    provider: 'umami',
+    websiteId: 'your-website-id',
   },
 
   // Custom renderers (optional)
@@ -278,6 +285,73 @@ curl -O https://raw.githubusercontent.com/DarwinOnLine/quarkdown/main/docker/doc
 docker compose up -d
 ```
 
+## Analytics
+
+Quarkdown includes built-in, provider-agnostic analytics with automatic SPA page view tracking. Page views are tracked on every route change.
+
+Add the `analytics` object to your Quarkdown config:
+
+### Umami
+
+Open source, privacy-friendly, GDPR-compliant. Free cloud tier or self-hostable.
+
+```javascript
+analytics: {
+  provider: 'umami',
+  websiteId: 'your-website-id',
+  // src: 'https://your-instance.com/script.js',  // optional, defaults to Umami Cloud
+}
+```
+
+### Plausible
+
+Lightweight (~1KB), no cookies, GDPR-friendly. Open source, self-hostable.
+
+```javascript
+analytics: {
+  provider: 'plausible',
+  domain: 'yourdomain.com',
+  // src: 'https://your-instance.com/js/script.js',  // optional, defaults to Plausible Cloud
+}
+```
+
+### Fathom
+
+Privacy-first, no cookies, GDPR-compliant without cookie banner.
+
+```javascript
+analytics: {
+  provider: 'fathom',
+  siteId: 'YOUR_SITE_ID',
+}
+```
+
+### Google Analytics 4
+
+```javascript
+analytics: {
+  provider: 'gtag',
+  measurementId: 'G-XXXXXXXXXX',
+}
+```
+
+### Custom Provider
+
+Bring your own tracking function:
+
+```javascript
+analytics: {
+  provider: 'custom',
+  trackPageView: (url) => {
+    // your tracking logic here
+  },
+}
+```
+
+### Disabling Analytics
+
+Remove the `analytics` key from your config, or don't include it.
+
 ## Architecture
 
 | Module | Role |
@@ -288,6 +362,7 @@ docker compose up -d
 | `content.js` | Markdown loading, parsing, code highlighting |
 | `blog.js` | Post index, pagination |
 | `meta.js` | OG/Twitter meta tag management |
+| `analytics.js` | Provider-agnostic page view tracking |
 | `effects.js` | Cursor dot, starfield 404 |
 | `og-builder.js` | Static OG page generator (Node.js) |
 | `rss-builder.js` | RSS 2.0 feed generator (Node.js) |
