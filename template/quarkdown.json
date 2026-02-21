@@ -12,5 +12,6 @@
     "https://cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js"
   ],
   "feedFileName": "feed.xml",
-  "maxItems": 20
+  "maxItems": 20,
+  "sitemapFileName": "sitemap.xml"
 }

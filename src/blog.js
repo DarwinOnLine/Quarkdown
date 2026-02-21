@@ -43,6 +43,33 @@ export class BlogEngine {
     return contentLoader.fetchMarkdown(`${this.postsDir}/${lang}/${slug}.md`);
   }
 
+  /** Estimate reading time in minutes from raw text */
+  static estimateReadingTime(text) {
+    const words = text.trim().split(/\s+/).length;
+    return Math.max(1, Math.round(words / 200));
+  }
+
+  /** Get all unique tags across posts */
+  allTags() {
+    const tags = new Set();
+    this.posts.forEach(p => (p.tags || []).forEach(t => tags.add(t)));
+    return [...tags].sort();
+  }
+
+  /** Filter posts by tag */
+  filterByTag(tag) {
+    return this.sorted().filter(p => (p.tags || []).includes(tag));
+  }
+
+  /** Get paginated posts for a specific tag */
+  paginateByTag(tag, page = 1) {
+    const filtered = this.filterByTag(tag);
+    const totalPages = Math.ceil(filtered.length / this.postsPerPage);
+    const startIndex = (page - 1) * this.postsPerPage;
+    const items = filtered.slice(startIndex, startIndex + this.postsPerPage);
+    return { items, page, totalPages, startIndex, totalPosts: filtered.length };
+  }
+
   /** Generate pagination data (page numbers with ellipsis) */
   paginationRange(currentPage, totalPages) {
     if (totalPages <= 1) return [];

@@ -18,8 +18,14 @@ node "$ROOT/build-og.js" || exit 1
 # Build RSS feeds (optional - only if build-rss.js exists)
 [ -f "$ROOT/build-rss.js" ] && node "$ROOT/build-rss.js"
 
+# Build sitemap (optional - only if build-sitemap.js exists)
+[ -f "$ROOT/build-sitemap.js" ] && node "$ROOT/build-sitemap.js"
+
 # Stage generated directories (one per language from posts/*/index.json)
 for index in "$ROOT"/posts/*/index.json; do
     lang="$(basename "$(dirname "$index")")"
     [ -d "$ROOT/$lang" ] && git add "$ROOT/$lang/"
 done
+
+# Stage sitemap if it exists
+[ -f "$ROOT/sitemap.xml" ] && git add "$ROOT/sitemap.xml"

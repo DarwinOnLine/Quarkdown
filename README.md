@@ -11,8 +11,15 @@ Zero-dependency Markdown SPA blog engine for GitHub Pages.
 - **Syntax highlighting** — via [highlight.js](https://highlightjs.org/) with optional line numbers
 - **i18n** — multi-language support with auto-detection and language switcher
 - **Blog engine** — post index, pagination with ellipsis, tags
-- **Open Graph builder** — static OG meta pages for GitHub Pages social sharing
+- **Tag pages** — filterable `/blog/tag/{tag}` routes with pagination
+- **Client-side search** — instant full-text search overlay (title, description, tags)
+- **Reading time** — estimated reading time displayed on posts
+- **Table of contents** — floating sidebar TOC generated from h2/h3 headings
+- **Lazy loading** — automatic `loading="lazy"` on all images
+- **Light/Dark/System theme** — three-way toggle with OS detection and localStorage persistence
+- **Open Graph builder** — static OG meta pages for GitHub Pages social sharing (including tag pages)
 - **RSS feed builder** — generates RSS 2.0 feeds for each language
+- **Sitemap builder** — generates a single `sitemap.xml` with all URLs across all languages
 - **Embedded scripts** — execute `<script>` tags inside Markdown posts
 - **Starfield 404** — interactive canvas animation with warp speed effect
 - **Cursor dot** — decorative mouse-following dot (optional)
@@ -77,6 +84,9 @@ const app = new Quarkdown({
   starfield404: true,             // Starfield 404 page
   feedFileName: 'feed.xml',       // RSS feed (set to null to disable)
   externalLinksNewTab: true,      // Open external links in new tab
+  toc: true,                      // Table of contents on posts (default: true)
+  search: true,                   // Client-side search (default: true)
+  themeToggle: true,              // Light/dark/system toggle (default: false)
 
   // Meta
   defaultImage: 'assets/images/default-og.png',
@@ -85,15 +95,27 @@ const app = new Quarkdown({
   translations: {
     en: {
       nav: { home: 'Home', blog: 'Blog' },
-      blog: { title: 'Blog', noPosts: 'No posts yet.' },
+      blog: {
+        title: 'Blog', noPosts: 'No posts yet.',
+        readingTime: '{min} min read',
+        toc: 'Table of contents',
+        tagTitle: 'Tag: {tag}',
+      },
       pagination: { previous: 'Previous', next: 'Next' },
       date: { locale: 'en-US' },
+      search: { placeholder: 'Search articles...', noResults: 'No results found.' },
     },
     fr: {
       nav: { home: 'Accueil', blog: 'Blog' },
-      blog: { title: 'Blog', noPosts: 'Aucun article.' },
+      blog: {
+        title: 'Blog', noPosts: 'Aucun article.',
+        readingTime: '{min} min de lecture',
+        toc: 'Sommaire',
+        tagTitle: 'Tag : {tag}',
+      },
       pagination: { previous: 'Précédent', next: 'Suivant' },
       date: { locale: 'fr-FR' },
+      search: { placeholder: 'Rechercher...', noResults: 'Aucun résultat.' },
     },
   },
 
@@ -106,7 +128,8 @@ const app = new Quarkdown({
   // Custom renderers (optional)
   renderHome: (html, ctx) => `<div>...</div>`,
   renderBlog: (data, ctx) => `<div>...</div>`,
-  renderPost: (html, post, ctx) => `<div>...</div>`,
+  renderPost: (html, post, ctx, { readingTime }) => `<div>...</div>`,
+  renderTag: (data, tag, ctx) => `<div>...</div>`,
   render404: (ctx) => `<div>...</div>`,
 });
 
@@ -211,7 +234,21 @@ Generate RSS 2.0 feeds for each language from your posts index:
 node build-rss.js
 ```
 
-Both scripts read their configuration from `quarkdown.json`. This generates `{lang}/feed.xml` for each language (e.g. `en/feed.xml`, `fr/feed.xml`).
+## Sitemap Builder
+
+Generate a single `sitemap.xml` with all URLs (home, blog, posts, tag pages) for all languages:
+
+```bash
+node build-sitemap.js
+```
+
+Add a sitemap link to your `index.html` `<head>`:
+
+```html
+<link rel="sitemap" type="application/xml" href="/sitemap.xml" />
+```
+
+Both OG and RSS scripts read their configuration from `quarkdown.json`. This generates `{lang}/feed.xml` for each language (e.g. `en/feed.xml`, `fr/feed.xml`).
 
 `siteName` and `siteDescription` support per-language values:
 
@@ -239,9 +276,9 @@ A pre-commit hook is provided to automatically rebuild OG pages and RSS feeds be
 cp hooks/pre-commit .git/hooks/pre-commit
 ```
 
-This ensures `fr/` and `en/` OG pages and RSS feeds always stay in sync with your post index.
+This ensures OG pages, RSS feeds, and sitemap always stay in sync with your post index.
 
-Both `build-og.js` and `build-rss.js` are included in the template and copied during setup.
+`build-og.js`, `build-rss.js`, and `build-sitemap.js` are included in the template and copied during setup.
 
 ## Docker
 
@@ -364,8 +401,10 @@ Remove the `analytics` key from your config, or don't include it.
 | `meta.js` | OG/Twitter meta tag management |
 | `analytics.js` | Provider-agnostic page view tracking |
 | `effects.js` | Cursor dot, starfield 404 |
+| `search.js` | Client-side search engine |
 | `og-builder.js` | Static OG page generator (Node.js) |
 | `rss-builder.js` | RSS 2.0 feed generator (Node.js) |
+| `sitemap-builder.js` | Sitemap XML generator (Node.js) |
 
 ## License
 

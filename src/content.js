@@ -80,6 +80,29 @@ export class ContentLoader {
     });
   }
 
+  /** Add loading="lazy" to all images */
+  lazyLoadImages(container) {
+    container.querySelectorAll('img:not([loading])').forEach((img) => {
+      img.setAttribute('loading', 'lazy');
+    });
+  }
+
+  /** Generate a table of contents from h2/h3 headings */
+  generateTOC(container, label = 'Table of contents') {
+    const headings = container.querySelectorAll('h2, h3');
+    if (headings.length === 0) return null;
+
+    const items = Array.from(headings).map((h) => {
+      const level = h.tagName === 'H3' ? 'toc-h3' : 'toc-h2';
+      return `<li class="${level}"><a href="#${h.id}">${h.textContent}</a></li>`;
+    }).join('');
+
+    const nav = document.createElement('nav');
+    nav.className = 'toc-panel';
+    nav.innerHTML = `<div class="toc-title">${label}</div><ul>${items}</ul>`;
+    return nav;
+  }
+
   /** Re-execute <script> tags injected via innerHTML */
   executeScripts(container) {
     container.querySelectorAll('script').forEach((oldScript) => {
