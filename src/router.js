@@ -19,6 +19,16 @@ export class Router {
       const link = e.target.closest('a[href]');
       if (!link) return;
       const href = link.getAttribute('href');
+      // Hash-only links: handle manually to avoid <base> tag interference
+      if (href && href.startsWith('#')) {
+        e.preventDefault();
+        const target = document.querySelector(href);
+        if (target) {
+          history.replaceState(null, '', window.location.pathname + window.location.search + href);
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+        return;
+      }
       if (href && href.startsWith('/') && !href.startsWith('//')) {
         e.preventDefault();
         this.navigateTo(href);
