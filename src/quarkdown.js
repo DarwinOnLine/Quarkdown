@@ -173,6 +173,27 @@ export class Quarkdown {
     this.search.index(this.blog.posts, contents);
   }
 
+  _renderTagBadge(tag, ctx, count = null, extraClass = '') {
+    const href = `/${ctx.lang}/blog/tag/${encodeURIComponent(tag)}`;
+    const countHTML = count !== null ? ` <span class="tag-count">${count}</span>` : '';
+    const cls = `post-tag${extraClass ? ` ${extraClass}` : ''}`;
+    return `<a class="${cls}" href="${href}" onclick="event.stopPropagation(); window._quarkdown.navigateTo('${href}'); return false;">${esc(tag)}${countHTML}</a>`;
+  }
+
+  _renderPostPreview(post, index, startIndex, ctx, tagCounts) {
+    const num = String(startIndex + index + 1).padStart(2, '0');
+    const tagsHTML = (post.tags || []).map(tag => this._renderTagBadge(tag, ctx, tagCounts[tag] || 0)).join('');
+    return `
+      <article class="post-preview" onclick="event.preventDefault(); window._quarkdown.navigateTo('/${ctx.lang}/blog/${post.slug}')" style="cursor:pointer;">
+        <div class="post-number">${num}</div>
+        <h2>${esc(post.title)}</h2>
+        <p class="post-meta">${ctx.formatDate(post.date)}</p>
+        <p class="post-description">${esc(post.description)}</p>
+        ${tagsHTML ? `<div class="post-tags">${tagsHTML}</div>` : ''}
+      </article>
+    `;
+  }
+
   async _handleRoute({ path, lang, params, routeId }) {
     if (this.analytics) {
       this.analytics.trackPageView(window.location.pathname);
@@ -285,21 +306,7 @@ export class Quarkdown {
       this.container.innerHTML = this.config.renderBlog({ items, page, totalPages, startIndex, paginationRange }, ctx);
     } else {
       const tagCounts = this.blog.tagCounts();
-      const postsHTML = items.map((post, index) => {
-        const num = String(startIndex + index + 1).padStart(2, '0');
-        const tagsHTML = (post.tags || []).map(tag =>
-          `<a class="post-tag" href="/${ctx.lang}/blog/tag/${encodeURIComponent(tag)}" onclick="event.stopPropagation(); window._quarkdown.navigateTo('/${ctx.lang}/blog/tag/${encodeURIComponent(tag)}'); return false;">${esc(tag)} <span class="tag-count">${tagCounts[tag] || 0}</span></a>`
-        ).join('');
-        return `
-          <article class="post-preview" onclick="event.preventDefault(); window._quarkdown.navigateTo('/${ctx.lang}/blog/${post.slug}')" style="cursor:pointer;">
-            <div class="post-number">${num}</div>
-            <h2>${esc(post.title)}</h2>
-            <p class="post-meta">${ctx.formatDate(post.date)}</p>
-            <p class="post-description">${esc(post.description)}</p>
-            ${tagsHTML ? `<div class="post-tags">${tagsHTML}</div>` : ''}
-          </article>
-        `;
-      }).join('');
+      const postsHTML = items.map((post, index) => this._renderPostPreview(post, index, startIndex, ctx, tagCounts)).join('');
 
       let paginationHTML = '';
       if (totalPages > 1) {
@@ -361,9 +368,7 @@ export class Quarkdown {
     const tagCounts = this.blog.tagCounts();
     const tags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]);
 
-    const tagsHTML = tags.map(([tag, count]) =>
-      `<a class="post-tag tag-cloud-item" href="/${ctx.lang}/blog/tag/${encodeURIComponent(tag)}" onclick="event.preventDefault(); window._quarkdown.navigateTo('/${ctx.lang}/blog/tag/${encodeURIComponent(tag)}');">${esc(tag)} <span class="tag-count">${count}</span></a>`
-    ).join('');
+    const tagsHTML = tags.map(([tag, count]) => this._renderTagBadge(tag, ctx, count, 'tag-cloud-item')).join('');
 
     this.container.innerHTML = `
       <div class="blog-page">
@@ -394,21 +399,7 @@ export class Quarkdown {
       this.container.innerHTML = this.config.renderTag({ items, page, totalPages, startIndex, paginationRange }, tag, ctx);
     } else {
       const tagCounts = this.blog.tagCounts();
-      const postsHTML = items.map((post, index) => {
-        const num = String(startIndex + index + 1).padStart(2, '0');
-        const tagsHTML = (post.tags || []).map(t =>
-          `<a class="post-tag" href="/${ctx.lang}/blog/tag/${encodeURIComponent(t)}" onclick="event.stopPropagation(); window._quarkdown.navigateTo('/${ctx.lang}/blog/tag/${encodeURIComponent(t)}'); return false;">${esc(t)} <span class="tag-count">${tagCounts[t] || 0}</span></a>`
-        ).join('');
-        return `
-          <article class="post-preview" onclick="event.preventDefault(); window._quarkdown.navigateTo('/${ctx.lang}/blog/${post.slug}')" style="cursor:pointer;">
-            <div class="post-number">${num}</div>
-            <h2>${esc(post.title)}</h2>
-            <p class="post-meta">${ctx.formatDate(post.date)}</p>
-            <p class="post-description">${esc(post.description)}</p>
-            ${tagsHTML ? `<div class="post-tags">${tagsHTML}</div>` : ''}
-          </article>
-        `;
-      }).join('');
+      const postsHTML = items.map((post, index) => this._renderPostPreview(post, index, startIndex, ctx, tagCounts)).join('');
 
       let paginationHTML = '';
       if (totalPages > 1) {
@@ -465,9 +456,7 @@ export class Quarkdown {
       const ctx = this._ctx();
       const readingTime = BlogEngine.estimateReadingTime(markdown);
       const readingTimeText = this.t('blog.readingTime').replace('{min}', readingTime);
-      const tagsHTML = (post.tags || []).map(tag =>
-        `<a class="post-tag" href="/${ctx.lang}/blog/tag/${encodeURIComponent(tag)}" onclick="event.stopPropagation(); window._quarkdown.navigateTo('/${ctx.lang}/blog/tag/${encodeURIComponent(tag)}'); return false;">${esc(tag)}</a>`
-      ).join('');
+      const tagsHTML = (post.tags || []).map(tag => this._renderTagBadge(tag, ctx)).join('');
 
       if (this.config.renderPost) {
         this.container.innerHTML = this.config.renderPost(html, post, ctx, { readingTime });
