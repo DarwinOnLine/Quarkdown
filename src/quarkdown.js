@@ -86,6 +86,20 @@ export class Quarkdown {
     if (this.config.cursorDot) initCursorDot();
     if (this.config.themeToggle) this._initThemeToggle();
 
+    // Global keyboard shortcut: Ctrl+K / Cmd+K to open search
+    if (this.config.search) {
+      document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+          e.preventDefault();
+          if (document.querySelector('.search-overlay')) {
+            this._closeSearch();
+          } else {
+            this._openSearch();
+          }
+        }
+      });
+    }
+
     // Expose instance globally for onclick handlers in templates
     window._quarkdown = this;
   }
@@ -602,9 +616,44 @@ export class Quarkdown {
       inlineToc.innerHTML = `<summary>${label}</summary><nav class="toc-panel">${listClone}</nav>`;
       postContent.insertBefore(inlineToc, postContent.firstChild);
     }
+
+    // Scroll spy: highlight active section in TOC
+    this._initScrollSpy(sidebar);
+  }
+
+  _initScrollSpy(sidebar) {
+    if (this._tocObserver) this._tocObserver.disconnect();
+
+    const links = sidebar.querySelectorAll('.toc-panel a');
+    const idToLink = new Map();
+    links.forEach(a => {
+      const id = a.getAttribute('href')?.replace(/^#/, '');
+      if (id) idToLink.set(id, a);
+    });
+
+    if (idToLink.size === 0) return;
+
+    const headings = Array.from(idToLink.keys())
+      .map(id => document.getElementById(id))
+      .filter(Boolean);
+
+    let activeId = null;
+
+    this._tocObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) activeId = entry.target.id;
+      });
+      links.forEach(a => a.classList.remove('toc-active'));
+      if (activeId && idToLink.has(activeId)) {
+        idToLink.get(activeId).classList.add('toc-active');
+      }
+    }, { rootMargin: '0px 0px -70% 0px', threshold: 0 });
+
+    headings.forEach(h => this._tocObserver.observe(h));
   }
 
   _closeTOC() {
+    if (this._tocObserver) { this._tocObserver.disconnect(); this._tocObserver = null; }
     document.querySelector('.toc-sidebar')?.remove();
     document.querySelector('.toc-toggle')?.remove();
     document.querySelector('.toc-inline')?.remove();

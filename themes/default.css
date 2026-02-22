@@ -478,6 +478,7 @@ body::before {
     border-right: 2px solid var(--qd-border);
     z-index: 999;
     transform: translateX(-100%);
+    transition: transform 0.2s ease;
     overflow-y: auto;
     padding: 2rem 1.5rem;
 }
@@ -540,6 +541,11 @@ body::before {
 
 .toc-panel .toc-h3 a:hover {
     color: var(--qd-accent);
+}
+
+.toc-panel li a.toc-active {
+    color: var(--qd-accent);
+    border-left-color: var(--qd-accent);
 }
 
 /* TOC inline (mobile fallback) */
