@@ -384,6 +384,16 @@ body::before {
     border-color: var(--qd-accent);
 }
 
+.tag-count {
+    font-size: 0.6rem;
+    opacity: 0.6;
+    margin-left: 0.15rem;
+}
+
+.post-tag:hover .tag-count {
+    opacity: 0.8;
+}
+
 /* Pagination */
 
 .pagination {

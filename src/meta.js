@@ -29,5 +29,14 @@ export class MetaManager {
       const meta = document.querySelector(`meta[property="${property}"], meta[name="${property}"]`);
       if (meta) meta.setAttribute('content', content);
     }
+
+    // Canonical URL
+    let link = document.querySelector('link[rel="canonical"]');
+    if (!link) {
+      link = document.createElement('link');
+      link.rel = 'canonical';
+      document.head.appendChild(link);
+    }
+    link.href = `${this.baseUrl}${window.location.pathname}`;
   }
 }

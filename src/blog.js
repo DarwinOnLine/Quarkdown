@@ -56,6 +56,13 @@ export class BlogEngine {
     return [...tags].sort();
   }
 
+  /** Get post count per tag */
+  tagCounts() {
+    const counts = {};
+    this.posts.forEach(p => (p.tags || []).forEach(t => { counts[t] = (counts[t] || 0) + 1; }));
+    return counts;
+  }
+
   /** Filter posts by tag */
   filterByTag(tag) {
     return this.sorted().filter(p => (p.tags || []).includes(tag));

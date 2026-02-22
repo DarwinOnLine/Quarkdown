@@ -11,15 +11,16 @@ Zero-dependency Markdown SPA blog engine for GitHub Pages.
 - **Syntax highlighting** — via [highlight.js](https://highlightjs.org/) with optional line numbers
 - **i18n** — multi-language support with auto-detection and language switcher
 - **Blog engine** — post index, pagination with ellipsis, tags
-- **Tag pages** — filterable `/blog/tag/{tag}` routes with pagination
+- **Tag pages** — filterable `/blog/tag/{tag}` routes with pagination and post counts
 - **Client-side search** — instant full-text search overlay (title, description, tags) with `Ctrl+K` / `Cmd+K` shortcut
 - **Reading time** — estimated reading time displayed on posts
 - **Table of contents** — floating sidebar TOC generated from h2/h3 headings, with scroll spy and click-outside-to-close
 - **Lazy loading** — automatic `loading="lazy"` on all images
 - **Light/Dark/System theme** — three-way toggle with OS detection and localStorage persistence
+- **Canonical URLs** — dynamic `<link rel="canonical">` on every page
 - **Open Graph builder** — static OG meta pages for GitHub Pages social sharing (including tag pages)
 - **RSS feed builder** — generates RSS 2.0 feeds for each language
-- **Sitemap builder** — generates a single `sitemap.xml` with all URLs across all languages
+- **Sitemap builder** — generates `sitemap.xml` with smart lastmod dates (per-post and per-tag)
 - **Embedded scripts** — execute `<script>` tags inside Markdown posts
 - **Starfield 404** — interactive canvas animation with warp speed effect
 - **Cursor dot** — decorative mouse-following dot (optional)

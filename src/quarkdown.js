@@ -264,10 +264,11 @@ export class Quarkdown {
     if (this.config.renderBlog) {
       this.container.innerHTML = this.config.renderBlog({ items, page, totalPages, startIndex, paginationRange }, ctx);
     } else {
+      const tagCounts = this.blog.tagCounts();
       const postsHTML = items.map((post, index) => {
         const num = String(startIndex + index + 1).padStart(2, '0');
         const tagsHTML = (post.tags || []).map(tag =>
-          `<a class="post-tag" href="/${ctx.lang}/blog/tag/${encodeURIComponent(tag)}" onclick="event.stopPropagation(); window._quarkdown.navigateTo('/${ctx.lang}/blog/tag/${encodeURIComponent(tag)}'); return false;">${tag}</a>`
+          `<a class="post-tag" href="/${ctx.lang}/blog/tag/${encodeURIComponent(tag)}" onclick="event.stopPropagation(); window._quarkdown.navigateTo('/${ctx.lang}/blog/tag/${encodeURIComponent(tag)}'); return false;">${tag} <span class="tag-count">${tagCounts[tag] || 0}</span></a>`
         ).join('');
         return `
           <article class="post-preview" onclick="event.preventDefault(); window._quarkdown.navigateTo('/${ctx.lang}/blog/${post.slug}')" style="cursor:pointer;">
@@ -344,10 +345,11 @@ export class Quarkdown {
     if (this.config.renderTag) {
       this.container.innerHTML = this.config.renderTag({ items, page, totalPages, startIndex, paginationRange }, tag, ctx);
     } else {
+      const tagCounts = this.blog.tagCounts();
       const postsHTML = items.map((post, index) => {
         const num = String(startIndex + index + 1).padStart(2, '0');
         const tagsHTML = (post.tags || []).map(t =>
-          `<a class="post-tag" href="/${ctx.lang}/blog/tag/${encodeURIComponent(t)}" onclick="event.stopPropagation(); window._quarkdown.navigateTo('/${ctx.lang}/blog/tag/${encodeURIComponent(t)}'); return false;">${t}</a>`
+          `<a class="post-tag" href="/${ctx.lang}/blog/tag/${encodeURIComponent(t)}" onclick="event.stopPropagation(); window._quarkdown.navigateTo('/${ctx.lang}/blog/tag/${encodeURIComponent(t)}'); return false;">${t} <span class="tag-count">${tagCounts[t] || 0}</span></a>`
         ).join('');
         return `
           <article class="post-preview" onclick="event.preventDefault(); window._quarkdown.navigateTo('/${ctx.lang}/blog/${post.slug}')" style="cursor:pointer;">

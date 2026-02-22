@@ -41,15 +41,18 @@ export function buildSitemap(config) {
     // Home page
     urls.push({ loc: `${baseUrl}/${lang}`, lastmod: today, priority: '1.0' });
 
-    // Blog listing
-    urls.push({ loc: `${baseUrl}/${lang}/blog`, lastmod: today, priority: '0.8' });
-
     // Posts
     const indexPath = join(rootDir, postsDir, lang, 'index.json');
     const posts = JSON.parse(readFileSync(indexPath, 'utf-8'));
 
-    // Collect tags
-    const tags = new Set();
+    // Most recent post date for blog listing lastmod
+    const latestDate = posts.reduce((max, p) => p.date > max ? p.date : max, '');
+
+    // Blog listing
+    urls.push({ loc: `${baseUrl}/${lang}/blog`, lastmod: toW3CDate(latestDate), priority: '0.8' });
+
+    // Collect tags with their most recent post date
+    const tagLastmod = {};
 
     for (const post of posts) {
       urls.push({
@@ -57,14 +60,16 @@ export function buildSitemap(config) {
         lastmod: toW3CDate(post.date),
         priority: '0.6',
       });
-      (post.tags || []).forEach(tag => tags.add(tag));
+      (post.tags || []).forEach(tag => {
+        if (!tagLastmod[tag] || post.date > tagLastmod[tag]) tagLastmod[tag] = post.date;
+      });
     }
 
     // Tag pages
-    for (const tag of tags) {
+    for (const [tag, lastmod] of Object.entries(tagLastmod)) {
       urls.push({
         loc: `${baseUrl}/${lang}/blog/tag/${encodeURIComponent(tag)}`,
-        lastmod: today,
+        lastmod: toW3CDate(lastmod),
         priority: '0.5',
       });
     }
