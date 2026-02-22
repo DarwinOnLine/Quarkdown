@@ -12,6 +12,10 @@ import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
+function escapeXml(str) {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 function toW3CDate(dateStr) {
   if (!dateStr) return new Date().toISOString().split('T')[0];
   return dateStr; // Already YYYY-MM-DD
@@ -76,7 +80,7 @@ export function buildSitemap(config) {
   }
 
   const urlEntries = urls.map(u => `  <url>
-    <loc>${u.loc}</loc>
+    <loc>${escapeXml(u.loc)}</loc>
     <lastmod>${u.lastmod}</lastmod>
     <priority>${u.priority}</priority>
   </url>`).join('\n');

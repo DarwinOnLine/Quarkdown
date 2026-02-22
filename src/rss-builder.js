@@ -22,6 +22,12 @@ function escapeXml(str) {
     .replace(/'/g, '&apos;');
 }
 
+function mimeFromUrl(url) {
+  const ext = (url.split('.').pop() || '').toLowerCase().split('?')[0];
+  const types = { png: 'image/png', gif: 'image/gif', webp: 'image/webp', svg: 'image/svg+xml', avif: 'image/avif' };
+  return types[ext] || 'image/jpeg';
+}
+
 function toRFC822(dateStr) {
   // Convert YYYY-MM-DD to RFC 822 format
   const date = new Date(dateStr + 'T12:00:00Z');
@@ -83,7 +89,7 @@ export function buildRSSFeeds(config) {
       <pubDate>${toRFC822(post.date)}</pubDate>
       <description>${escapeXml(post.description)}</description>${post.tags && post.tags.length > 0 ? post.tags.map(tag => `
       <category>${escapeXml(tag)}</category>`).join('') : ''}${imageUrl ? `
-      <enclosure url="${imageUrl}" type="image/jpeg" length="0" />` : ''}
+      <enclosure url="${imageUrl}" type="${mimeFromUrl(imageUrl)}" length="0" />` : ''}
     </item>`;
     }).join('\n');
 

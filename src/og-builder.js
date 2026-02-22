@@ -63,13 +63,13 @@ ${hljsTheme ? `        <link rel="stylesheet" href="${hljsTheme}">` : ''}
         <meta property="og:type" content="${ogType}" />
         <meta property="og:title" content="${escapeHtml(title)}" />
         <meta property="og:description" content="${escapeHtml(description)}" />
-        <meta property="og:image" content="${image}" />
-        <meta property="og:url" content="${url}" />
+        <meta property="og:image" content="${escapeHtml(image)}" />
+        <meta property="og:url" content="${escapeHtml(url)}" />
         <!-- Twitter Card -->
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="${escapeHtml(title)}" />
         <meta name="twitter:description" content="${escapeHtml(description)}" />
-        <meta name="twitter:image" content="${image}" />
+        <meta name="twitter:image" content="${escapeHtml(image)}" />
     </head>
     <body>
         <div id="content"></div>

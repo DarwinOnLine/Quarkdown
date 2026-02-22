@@ -10,6 +10,12 @@ import { initCursorDot, initStarfield } from './effects.js';
 import { Analytics } from './analytics.js';
 import { SearchEngine } from './search.js';
 
+function esc(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
 export class Quarkdown {
   /**
    * @param {Object} config
@@ -187,6 +193,7 @@ export class Quarkdown {
       this.i18n.currentLang = lang;
     }
 
+    let m;
     if (path === '/' || path === '') {
       await this._showHome(routeId);
     } else if (path === '/blog') {
@@ -194,8 +201,8 @@ export class Quarkdown {
       this._showBlog(page);
     } else if (path === '/blog/tags') {
       this._showAllTags();
-    } else if (path.match(/^\/blog\/tag\/(.+)/)) {
-      const tag = decodeURIComponent(path.match(/^\/blog\/tag\/(.+)/)[1].replace(/\/$/, ''));
+    } else if ((m = path.match(/^\/blog\/tag\/(.+)/))) {
+      const tag = decodeURIComponent(m[1].replace(/\/$/, ''));
       const page = parseInt(params.page) || 1;
       this._showTag(tag, page);
     } else if (path.startsWith('/blog/')) {
@@ -281,14 +288,14 @@ export class Quarkdown {
       const postsHTML = items.map((post, index) => {
         const num = String(startIndex + index + 1).padStart(2, '0');
         const tagsHTML = (post.tags || []).map(tag =>
-          `<a class="post-tag" href="/${ctx.lang}/blog/tag/${encodeURIComponent(tag)}" onclick="event.stopPropagation(); window._quarkdown.navigateTo('/${ctx.lang}/blog/tag/${encodeURIComponent(tag)}'); return false;">${tag} <span class="tag-count">${tagCounts[tag] || 0}</span></a>`
+          `<a class="post-tag" href="/${ctx.lang}/blog/tag/${encodeURIComponent(tag)}" onclick="event.stopPropagation(); window._quarkdown.navigateTo('/${ctx.lang}/blog/tag/${encodeURIComponent(tag)}'); return false;">${esc(tag)} <span class="tag-count">${tagCounts[tag] || 0}</span></a>`
         ).join('');
         return `
           <article class="post-preview" onclick="event.preventDefault(); window._quarkdown.navigateTo('/${ctx.lang}/blog/${post.slug}')" style="cursor:pointer;">
             <div class="post-number">${num}</div>
-            <h2>${post.title}</h2>
+            <h2>${esc(post.title)}</h2>
             <p class="post-meta">${ctx.formatDate(post.date)}</p>
-            <p class="post-description">${post.description}</p>
+            <p class="post-description">${esc(post.description)}</p>
             ${tagsHTML ? `<div class="post-tags">${tagsHTML}</div>` : ''}
           </article>
         `;
@@ -355,7 +362,7 @@ export class Quarkdown {
     const tags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]);
 
     const tagsHTML = tags.map(([tag, count]) =>
-      `<a class="post-tag tag-cloud-item" href="/${ctx.lang}/blog/tag/${encodeURIComponent(tag)}" onclick="event.preventDefault(); window._quarkdown.navigateTo('/${ctx.lang}/blog/tag/${encodeURIComponent(tag)}');">${tag} <span class="tag-count">${count}</span></a>`
+      `<a class="post-tag tag-cloud-item" href="/${ctx.lang}/blog/tag/${encodeURIComponent(tag)}" onclick="event.preventDefault(); window._quarkdown.navigateTo('/${ctx.lang}/blog/tag/${encodeURIComponent(tag)}');">${esc(tag)} <span class="tag-count">${count}</span></a>`
     ).join('');
 
     this.container.innerHTML = `
@@ -390,14 +397,14 @@ export class Quarkdown {
       const postsHTML = items.map((post, index) => {
         const num = String(startIndex + index + 1).padStart(2, '0');
         const tagsHTML = (post.tags || []).map(t =>
-          `<a class="post-tag" href="/${ctx.lang}/blog/tag/${encodeURIComponent(t)}" onclick="event.stopPropagation(); window._quarkdown.navigateTo('/${ctx.lang}/blog/tag/${encodeURIComponent(t)}'); return false;">${t} <span class="tag-count">${tagCounts[t] || 0}</span></a>`
+          `<a class="post-tag" href="/${ctx.lang}/blog/tag/${encodeURIComponent(t)}" onclick="event.stopPropagation(); window._quarkdown.navigateTo('/${ctx.lang}/blog/tag/${encodeURIComponent(t)}'); return false;">${esc(t)} <span class="tag-count">${tagCounts[t] || 0}</span></a>`
         ).join('');
         return `
           <article class="post-preview" onclick="event.preventDefault(); window._quarkdown.navigateTo('/${ctx.lang}/blog/${post.slug}')" style="cursor:pointer;">
             <div class="post-number">${num}</div>
-            <h2>${post.title}</h2>
+            <h2>${esc(post.title)}</h2>
             <p class="post-meta">${ctx.formatDate(post.date)}</p>
-            <p class="post-description">${post.description}</p>
+            <p class="post-description">${esc(post.description)}</p>
             ${tagsHTML ? `<div class="post-tags">${tagsHTML}</div>` : ''}
           </article>
         `;
@@ -459,7 +466,7 @@ export class Quarkdown {
       const readingTime = BlogEngine.estimateReadingTime(markdown);
       const readingTimeText = this.t('blog.readingTime').replace('{min}', readingTime);
       const tagsHTML = (post.tags || []).map(tag =>
-        `<a class="post-tag" href="/${ctx.lang}/blog/tag/${encodeURIComponent(tag)}" onclick="event.stopPropagation(); window._quarkdown.navigateTo('/${ctx.lang}/blog/tag/${encodeURIComponent(tag)}'); return false;">${tag}</a>`
+        `<a class="post-tag" href="/${ctx.lang}/blog/tag/${encodeURIComponent(tag)}" onclick="event.stopPropagation(); window._quarkdown.navigateTo('/${ctx.lang}/blog/tag/${encodeURIComponent(tag)}'); return false;">${esc(tag)}</a>`
       ).join('');
 
       if (this.config.renderPost) {
@@ -748,8 +755,8 @@ export class Quarkdown {
       } else {
         resultsDiv.innerHTML = results.map(r => `
           <a class="search-result" href="/${ctx.lang}/blog/${r.slug}" onclick="event.preventDefault(); window._quarkdown.navigateTo('/${ctx.lang}/blog/${r.slug}');">
-            <strong>${r.title}</strong>
-            <span>${r.description}</span>
+            <strong>${esc(r.title)}</strong>
+            <span>${esc(r.description)}</span>
           </a>
         `).join('');
       }
@@ -759,16 +766,17 @@ export class Quarkdown {
       if (e.target === overlay) this._closeSearch();
     });
 
-    const onEsc = (e) => {
-      if (e.key === 'Escape') {
-        this._closeSearch();
-        document.removeEventListener('keydown', onEsc);
-      }
+    this._searchEscListener = (e) => {
+      if (e.key === 'Escape') this._closeSearch();
     };
-    document.addEventListener('keydown', onEsc);
+    document.addEventListener('keydown', this._searchEscListener);
   }
 
   _closeSearch() {
+    if (this._searchEscListener) {
+      document.removeEventListener('keydown', this._searchEscListener);
+      this._searchEscListener = null;
+    }
     const overlay = document.querySelector('.search-overlay');
     if (overlay) overlay.remove();
   }
