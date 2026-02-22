@@ -606,6 +606,15 @@ export class Quarkdown {
       });
     });
 
+    // Close sidebar on click outside
+    this._tocOutsideListener = (e) => {
+      if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && e.target !== btn && !btn.contains(e.target)) {
+        sidebar.classList.remove('open');
+        btn.classList.remove('active');
+      }
+    };
+    document.addEventListener('click', this._tocOutsideListener);
+
     // Mobile: inline collapsed <details> inside post-content
     const postContent = this.container.querySelector('.post-content');
     if (postContent) {
@@ -654,6 +663,7 @@ export class Quarkdown {
 
   _closeTOC() {
     if (this._tocObserver) { this._tocObserver.disconnect(); this._tocObserver = null; }
+    if (this._tocOutsideListener) { document.removeEventListener('click', this._tocOutsideListener); this._tocOutsideListener = null; }
     document.querySelector('.toc-sidebar')?.remove();
     document.querySelector('.toc-toggle')?.remove();
     document.querySelector('.toc-inline')?.remove();

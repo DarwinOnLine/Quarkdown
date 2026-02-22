@@ -12,9 +12,9 @@ Zero-dependency Markdown SPA blog engine for GitHub Pages.
 - **i18n** — multi-language support with auto-detection and language switcher
 - **Blog engine** — post index, pagination with ellipsis, tags
 - **Tag pages** — filterable `/blog/tag/{tag}` routes with pagination
-- **Client-side search** — instant full-text search overlay (title, description, tags)
+- **Client-side search** — instant full-text search overlay (title, description, tags) with `Ctrl+K` / `Cmd+K` shortcut
 - **Reading time** — estimated reading time displayed on posts
-- **Table of contents** — floating sidebar TOC generated from h2/h3 headings
+- **Table of contents** — floating sidebar TOC generated from h2/h3 headings, with scroll spy and click-outside-to-close
 - **Lazy loading** — automatic `loading="lazy"` on all images
 - **Light/Dark/System theme** — three-way toggle with OS detection and localStorage persistence
 - **Open Graph builder** — static OG meta pages for GitHub Pages social sharing (including tag pages)
