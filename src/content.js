@@ -61,7 +61,7 @@ export class ContentLoader {
   scrollToHash() {
     const hash = window.location.hash;
     if (!hash) return;
-    const target = document.querySelector(hash);
+    const target = document.getElementById(hash.slice(1));
     if (!target) return;
     target.scrollIntoView();
     if (target.classList.contains('anchor-highlight')) {

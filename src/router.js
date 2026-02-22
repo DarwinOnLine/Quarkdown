@@ -22,7 +22,7 @@ export class Router {
       // Hash-only links: handle manually to avoid <base> tag interference
       if (href && href.startsWith('#')) {
         e.preventDefault();
-        const target = document.querySelector(href);
+        const target = document.getElementById(href.slice(1));
         if (target) {
           history.replaceState(null, '', window.location.pathname + window.location.search + href);
           target.scrollIntoView({ behavior: 'smooth' });
