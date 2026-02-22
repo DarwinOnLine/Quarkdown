@@ -113,7 +113,7 @@ export class Quarkdown {
     this.i18n.resolve(langMatch?.[1] || null);
 
     await this.blog.loadIndex(this.i18n.currentLang, this.content);
-    if (this.search) this.search.index(this.blog.posts);
+    if (this.search) await this._indexSearch();
     this.router.start();
   }
 
@@ -156,6 +156,17 @@ export class Quarkdown {
 
   // --- Private ---
 
+  async _indexSearch() {
+    const lang = this.i18n.currentLang;
+    const contents = {};
+    await Promise.all(this.blog.posts.map(async (post) => {
+      try {
+        contents[post.slug] = await this.blog.loadPost(post.slug, lang, this.content);
+      } catch (e) { /* skip unavailable posts */ }
+    }));
+    this.search.index(this.blog.posts, contents);
+  }
+
   async _handleRoute({ path, lang, params, routeId }) {
     if (this.analytics) {
       this.analytics.trackPageView(window.location.pathname);
@@ -170,7 +181,7 @@ export class Quarkdown {
       this.i18n.currentLang = lang;
       this._showLoading();
       await this.blog.loadIndex(lang, this.content);
-      if (this.search) this.search.index(this.blog.posts);
+      if (this.search) await this._indexSearch();
       if (!this.router.isActive(routeId)) return;
     } else if (lang) {
       this.i18n.currentLang = lang;
@@ -181,6 +192,8 @@ export class Quarkdown {
     } else if (path === '/blog') {
       const page = parseInt(params.page) || 1;
       this._showBlog(page);
+    } else if (path === '/blog/tags') {
+      this._showAllTags();
     } else if (path.match(/^\/blog\/tag\/(.+)/)) {
       const tag = decodeURIComponent(path.match(/^\/blog\/tag\/(.+)/)[1].replace(/\/$/, ''));
       const page = parseInt(params.page) || 1;
@@ -303,7 +316,7 @@ export class Quarkdown {
       }
 
       const searchBtn = this.config.search
-        ? `<button class="search-btn" onclick="window._quarkdown._openSearch()" title="Search">
+        ? `<button class="search-btn" onclick="window._quarkdown._openSearch()" title="Search" aria-label="Search articles">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
            </button>`
         : '';
@@ -332,6 +345,34 @@ export class Quarkdown {
         </div>
       `;
     }
+    if (this.config.themeToggle) this._injectThemeToggle();
+    this.meta.update();
+  }
+
+  _showAllTags() {
+    const ctx = this._ctx();
+    const tagCounts = this.blog.tagCounts();
+    const tags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]);
+
+    const tagsHTML = tags.map(([tag, count]) =>
+      `<a class="post-tag tag-cloud-item" href="/${ctx.lang}/blog/tag/${encodeURIComponent(tag)}" onclick="event.preventDefault(); window._quarkdown.navigateTo('/${ctx.lang}/blog/tag/${encodeURIComponent(tag)}');">${tag} <span class="tag-count">${count}</span></a>`
+    ).join('');
+
+    this.container.innerHTML = `
+      <div class="blog-page">
+        <nav class="main-nav">
+          <div class="lang-switcher">${ctx.nav()}</div>
+          <a href="/${ctx.lang}">${ctx.t('nav.home')}</a>
+          <a href="/${ctx.lang}/blog">${ctx.t('nav.blog')}</a>
+        </nav>
+        <div class="blog-header">
+          <h1>${ctx.t('blog.allTags')}<span class="dot">.</span></h1>
+        </div>
+        <div class="tag-cloud">
+          ${tagsHTML || `<p>${ctx.t('blog.noPosts')}</p>`}
+        </div>
+      </div>
+    `;
     if (this.config.themeToggle) this._injectThemeToggle();
     this.meta.update();
   }
@@ -574,6 +615,7 @@ export class Quarkdown {
     if (!nav || nav.querySelector('.theme-toggle')) return;
     const btn = document.createElement('button');
     btn.className = 'theme-toggle';
+    btn.setAttribute('aria-label', 'Toggle theme');
     btn.innerHTML = this._themeIcon();
     btn.onclick = () => this.toggleTheme();
     nav.appendChild(btn);
@@ -593,10 +635,13 @@ export class Quarkdown {
 
     const btn = document.createElement('button');
     btn.className = 'toc-toggle';
+    btn.setAttribute('aria-label', 'Table of contents');
+    btn.setAttribute('aria-expanded', 'false');
     btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="10" y2="18"/></svg>';
     btn.onclick = () => {
-      sidebar.classList.toggle('open');
+      const isOpen = sidebar.classList.toggle('open');
       btn.classList.toggle('active');
+      btn.setAttribute('aria-expanded', String(isOpen));
     };
     document.body.appendChild(btn);
 
@@ -605,6 +650,7 @@ export class Quarkdown {
       a.addEventListener('click', () => {
         sidebar.classList.remove('open');
         btn.classList.remove('active');
+        btn.setAttribute('aria-expanded', 'false');
       });
     });
 
@@ -613,6 +659,7 @@ export class Quarkdown {
       if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && e.target !== btn && !btn.contains(e.target)) {
         sidebar.classList.remove('open');
         btn.classList.remove('active');
+        btn.setAttribute('aria-expanded', 'false');
       }
     };
     document.addEventListener('click', this._tocOutsideListener);
@@ -678,10 +725,13 @@ export class Quarkdown {
     const ctx = this._ctx();
     const overlay = document.createElement('div');
     overlay.className = 'search-overlay';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-label', 'Search');
     overlay.innerHTML = `
       <div class="search-modal">
-        <input type="text" class="search-input" placeholder="${this.t('search.placeholder')}" autofocus />
-        <div class="search-results"></div>
+        <input type="text" class="search-input" placeholder="${this.t('search.placeholder')}" autofocus aria-label="${this.t('search.placeholder')}" />
+        <div class="search-results" role="list"></div>
       </div>
     `;
     document.body.appendChild(overlay);

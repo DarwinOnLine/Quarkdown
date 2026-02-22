@@ -11,8 +11,8 @@ Zero-dependency Markdown SPA blog engine for GitHub Pages.
 - **Syntax highlighting** — via [highlight.js](https://highlightjs.org/) with optional line numbers
 - **i18n** — multi-language support with auto-detection and language switcher
 - **Blog engine** — post index, pagination with ellipsis, tags
-- **Tag pages** — filterable `/blog/tag/{tag}` routes with pagination and post counts
-- **Client-side search** — instant full-text search overlay (title, description, tags) with `Ctrl+K` / `Cmd+K` shortcut
+- **Tag pages** — filterable `/blog/tag/{tag}` routes with pagination, post counts, and `/blog/tags` index page
+- **Client-side search** — full-text search overlay (title, description, tags, content) with `Ctrl+K` / `Cmd+K` shortcut
 - **Reading time** — estimated reading time displayed on posts
 - **Table of contents** — floating sidebar TOC generated from h2/h3 headings, with scroll spy and click-outside-to-close
 - **Lazy loading** — automatic `loading="lazy"` on all images
@@ -26,6 +26,7 @@ Zero-dependency Markdown SPA blog engine for GitHub Pages.
 - **Cursor dot** — decorative mouse-following dot (optional)
 - **Analytics** — provider-agnostic page view tracking (Umami, Plausible, Fathom, Google Analytics, or custom)
 - **Theming** — CSS custom properties for easy customization
+- **Accessibility** — ARIA labels, roles, and states on all interactive elements
 - **Zero build step** — works directly from a static file server
 
 ## Prerequisites
@@ -101,6 +102,7 @@ const app = new Quarkdown({
         readingTime: '{min} min read',
         toc: 'Table of contents',
         tagTitle: 'Tag: {tag}',
+        allTags: 'Tags',
       },
       pagination: { previous: 'Previous', next: 'Next' },
       date: { locale: 'en-US' },
@@ -113,6 +115,7 @@ const app = new Quarkdown({
         readingTime: '{min} min de lecture',
         toc: 'Sommaire',
         tagTitle: 'Tag : {tag}',
+        allTags: 'Tags',
       },
       pagination: { previous: 'Précédent', next: 'Suivant' },
       date: { locale: 'fr-FR' },
