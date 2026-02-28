@@ -367,6 +367,19 @@ analytics: {
 }
 ```
 
+### Fairlytics
+
+Free, open source, no cookies, GDPR-compliant, hosted in France. SPA navigation is tracked automatically via MutationObserver.
+
+> **Note:** Fairlytics is a small niche project — fewer integrations, no event/goal tracking, and a smaller community compared to Plausible or Umami. Best suited for simple page view analytics on personal sites or blogs.
+
+```javascript
+analytics: {
+  provider: 'fairlytics',
+  siteKey: 'your-site-key',
+}
+```
+
 ### Google Analytics 4
 
 ```javascript

@@ -50,6 +50,21 @@ const providers = {
     },
   },
 
+  fairlytics: {
+    inject({ siteKey }) {
+      const div = document.createElement('div');
+      div.id = 'fairlytics-id-ajcu6jd9k7ysd6';
+      div.dataset.fairlyticskey = siteKey;
+      document.body.appendChild(div);
+      const script = document.createElement('script');
+      script.defer = true;
+      script.src = 'https://app.fairlytics.tech/tag/tag.js';
+      document.head.appendChild(script);
+    },
+    // Fairlytics tracks SPA navigation automatically via MutationObserver
+    trackPageView() {},
+  },
+
   gtag: {
     inject({ measurementId }) {
       const script = document.createElement('script');
@@ -72,12 +87,13 @@ const providers = {
 export class Analytics {
   /**
    * @param {Object} config
-   * @param {string} config.provider - Provider name: 'umami', 'plausible', 'fathom', 'gtag', or 'custom'
+   * @param {string} config.provider - Provider name: 'umami', 'plausible', 'fathom', 'fairlytics', 'gtag', or 'custom'
    * @param {Function} [config.trackPageView] - Custom trackPageView(url) function (when provider is 'custom')
    * @param {string} [config.src] - Script URL override
    * @param {string} [config.websiteId] - Umami website ID
    * @param {string} [config.domain] - Plausible domain
    * @param {string} [config.siteId] - Fathom site ID
+   * @param {string} [config.siteKey] - Fairlytics site key
    * @param {string} [config.measurementId] - Google Analytics measurement ID
    */
   constructor(config) {
