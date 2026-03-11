@@ -64,6 +64,17 @@ export class BlogEngine {
     return counts;
   }
 
+  /** Get previous (older) and next (newer) posts relative to given slug */
+  neighbors(slug) {
+    const sorted = this.sorted();
+    const index = sorted.findIndex(p => p.slug === slug);
+    if (index === -1) return { prev: null, next: null };
+    return {
+      prev: index < sorted.length - 1 ? sorted[index + 1] : null,
+      next: index > 0 ? sorted[index - 1] : null,
+    };
+  }
+
   /** Filter posts by tag */
   filterByTag(tag) {
     return this.sorted().filter(p => (p.tags || []).includes(tag));

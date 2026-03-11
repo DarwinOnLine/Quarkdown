@@ -458,9 +458,24 @@ export class Quarkdown {
       const readingTimeText = this.t('blog.readingTime').replace('{min}', readingTime);
       const tagsHTML = (post.tags || []).map(tag => this._renderTagBadge(tag, ctx)).join('');
 
+      const { prev, next } = this.blog.neighbors(slug);
+
       if (this.config.renderPost) {
-        this.container.innerHTML = this.config.renderPost(html, post, ctx, { readingTime });
+        this.container.innerHTML = this.config.renderPost(html, post, ctx, { readingTime, prev, next });
       } else {
+        const prevLink = prev
+          ? `<a class="post-nav-link post-nav-prev" href="/${ctx.lang}/blog/${prev.slug}" onclick="event.preventDefault(); window._quarkdown.navigateTo('/${ctx.lang}/blog/${prev.slug}')">
+              <span class="post-nav-label">&laquo; ${ctx.t('blog.prevPost')}</span>
+              <span class="post-nav-title">${esc(prev.title)}</span>
+            </a>`
+          : '<span></span>';
+        const nextLink = next
+          ? `<a class="post-nav-link post-nav-next" href="/${ctx.lang}/blog/${next.slug}" onclick="event.preventDefault(); window._quarkdown.navigateTo('/${ctx.lang}/blog/${next.slug}')">
+              <span class="post-nav-label">${ctx.t('blog.nextPost')} &raquo;</span>
+              <span class="post-nav-title">${esc(next.title)}</span>
+            </a>`
+          : '<span></span>';
+
         this.container.innerHTML = `
           <div class="post-page">
             <nav class="main-nav">
@@ -473,6 +488,7 @@ export class Quarkdown {
               ${tagsHTML ? `<div class="post-tags">${tagsHTML}</div>` : ''}
               <div class="post-content">${html}</div>
             </article>
+            <nav class="post-nav">${prevLink}${nextLink}</nav>
           </div>
         `;
       }

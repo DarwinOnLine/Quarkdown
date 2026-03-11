@@ -98,14 +98,16 @@ export class Analytics {
    */
   constructor(config) {
     this.config = config;
+    this._isLocal = ['localhost', '127.0.0.1', '0.0.0.0', ''].includes(window.location.hostname);
     this.provider = config.provider === 'custom' ? null : providers[config.provider];
 
-    if (this.provider) {
+    if (this.provider && !this._isLocal) {
       this.provider.inject(config);
     }
   }
 
   trackPageView(url) {
+    if (this._isLocal) return;
     if (this.config.provider === 'custom' && typeof this.config.trackPageView === 'function') {
       this.config.trackPageView(url);
     } else if (this.provider) {
