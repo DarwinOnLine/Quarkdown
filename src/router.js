@@ -18,6 +18,11 @@ export class Router {
     document.addEventListener('click', (e) => {
       const link = e.target.closest('a[href]');
       if (!link) return;
+      // Let the browser handle clicks that should bypass SPA routing:
+      // modifier keys (open in new tab/window), explicit target, download links.
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      if (link.target && link.target !== '_self') return;
+      if (link.hasAttribute('download')) return;
       const href = link.getAttribute('href');
       // Hash-only links: handle manually to avoid <base> tag interference
       if (href && href.startsWith('#')) {
