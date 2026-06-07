@@ -27,6 +27,8 @@ export class Quarkdown {
    * @param {string} [config.contentContainer] - Selector for content div (default: '#content')
    * @param {string} [config.postsDir] - Posts directory (default: 'posts')
    * @param {string} [config.homeFile] - Home markdown pattern, {lang} is replaced (default: 'home-{lang}.md')
+   * @param {string} [config.pagesDir] - Static pages directory (default: 'pages')
+   * @param {Object} [config.pages] - Static pages keyed by slug: { file?, nav?, meta?: { [lang]: { title, description, image, navLabel } } }
    * @param {number} [config.postsPerPage] - Posts per page (default: 10)
    * @param {string} [config.defaultImage] - Default OG image path relative to baseUrl
    * @param {boolean} [config.cursorDot] - Enable cursor dot effect (default: false)
@@ -36,6 +38,7 @@ export class Quarkdown {
    * @param {Function} [config.renderHome] - Custom home page renderer (html, ctx) => string
    * @param {Function} [config.renderBlog] - Custom blog listing renderer (data, ctx) => string
    * @param {Function} [config.renderPost] - Custom post renderer (html, post, ctx) => string
+   * @param {Function} [config.renderPage] - Custom static page renderer (html, page, ctx) => string
    * @param {Function} [config.render404] - Custom 404 renderer (ctx) => string
    * @param {Function} [config.renderNav] - Custom nav renderer (ctx) => string
    * @param {Function} [config.renderLoading] - Custom loading renderer () => string
@@ -53,6 +56,8 @@ export class Quarkdown {
       contentContainer: '#content',
       postsDir: 'posts',
       homeFile: 'home-{lang}.md',
+      pagesDir: 'pages',
+      pages: null,
       postsPerPage: 10,
       defaultImage: '',
       cursorDot: false,
@@ -229,6 +234,8 @@ export class Quarkdown {
     } else if (path.startsWith('/blog/')) {
       const slug = path.split('/blog/')[1].replace(/\/$/, '');
       await this._showPost(slug, routeId);
+    } else if ((m = path.match(/^\/([\w-]+)$/)) && this.config.pages?.[m[1]]) {
+      await this._showPage(m[1], routeId);
     } else {
       this._show404();
     }
@@ -258,7 +265,63 @@ export class Quarkdown {
       navigateTo: (p) => this.navigateTo(p),
       siteName: this.config.siteName,
       feedUrl,
+      pagesNav: (currentSlug = null) => this._pageNavLinks(lang, currentSlug),
     };
+  }
+
+  /** Build nav links for static pages (skips pages with nav: false and the current page) */
+  _pageNavLinks(lang, currentSlug = null) {
+    if (!this.config.pages) return '';
+    return Object.entries(this.config.pages)
+      .filter(([slug, page]) => page.nav !== false && slug !== currentSlug)
+      .map(([slug, page]) => {
+        const translated = this.t(`nav.${slug}`);
+        const label = page.meta?.[lang]?.navLabel || (translated !== `nav.${slug}` ? translated : slug);
+        return `<a href="/${lang}/${slug}">${esc(label)}</a>`;
+      }).join('');
+  }
+
+  async _showPage(slug, routeId) {
+    const pageConfig = this.config.pages[slug];
+    this._showLoading();
+    try {
+      const lang = this.i18n.currentLang;
+      const filePattern = pageConfig.file || `${this.config.pagesDir}/${slug}-{lang}.md`;
+      const markdown = await this.content.fetchMarkdown(filePattern.replace('{lang}', lang));
+      if (!this.router.isActive(routeId)) return;
+
+      const html = this.content.parseMarkdown(markdown);
+      const ctx = this._ctx();
+      const meta = pageConfig.meta?.[lang] || {};
+      const page = { slug, ...meta };
+
+      if (this.config.renderPage) {
+        this.container.innerHTML = this.config.renderPage(html, page, ctx);
+      } else {
+        this.container.innerHTML = `
+          <div class="static-page page-${slug}">
+            <nav class="main-nav">
+              <div class="lang-switcher">${ctx.nav()}</div>
+              <a href="/${ctx.lang}">${ctx.t('nav.home')}</a>
+              <a href="/${ctx.lang}/blog">${ctx.t('nav.blog')}</a>
+              ${ctx.pagesNav(slug)}
+            </nav>
+            <div class="page-content post-content">${html}</div>
+          </div>
+        `;
+      }
+      this.content.highlightCode(this.container);
+      this.content.addHeadingAnchors(this.container);
+      this.content.lazyLoadImages(this.container);
+      this.content.scrollToHash();
+      if (this.config.externalLinksNewTab) this.content.openExternalLinks(this.container);
+      this.content.executeScripts(this.container);
+      if (this.config.themeToggle) this._injectThemeToggle();
+      this.meta.update(meta.title ? meta : null);
+    } catch (error) {
+      console.error('Quarkdown: Failed to load page:', error);
+      this._show404();
+    }
   }
 
   async _showHome(routeId) {
@@ -346,6 +409,7 @@ export class Quarkdown {
           <nav class="main-nav">
             <div class="lang-switcher">${ctx.nav()}</div>
             <a href="/${ctx.lang}">${ctx.t('nav.home')}</a>
+            ${ctx.pagesNav()}
           </nav>
           <div class="blog-header">
             <h1>${ctx.t('blog.title')}<span class="dot">.</span></h1>
@@ -376,6 +440,7 @@ export class Quarkdown {
           <div class="lang-switcher">${ctx.nav()}</div>
           <a href="/${ctx.lang}">${ctx.t('nav.home')}</a>
           <a href="/${ctx.lang}/blog">${ctx.t('nav.blog')}</a>
+          ${ctx.pagesNav()}
         </nav>
         <div class="blog-header">
           <h1>${ctx.t('blog.allTags')}<span class="dot">.</span></h1>
@@ -428,6 +493,7 @@ export class Quarkdown {
             <div class="lang-switcher">${ctx.nav()}</div>
             <a href="/${ctx.lang}">${ctx.t('nav.home')}</a>
             <a href="/${ctx.lang}/blog">${ctx.t('nav.blog')}</a>
+            ${ctx.pagesNav()}
           </nav>
           <div class="blog-header">
             <h1>${ctx.t('blog.tagTitle').replace('{tag}', tag)}<span class="dot">.</span></h1>
@@ -482,6 +548,7 @@ export class Quarkdown {
               ${post.i18nSlugs ? `<div class="lang-switcher">${ctx.nav(post.i18nSlugs)}</div>` : ''}
               <a href="/${ctx.lang}">${ctx.t('nav.home')}</a>
               <a href="/${ctx.lang}/blog">${ctx.t('nav.blog')}</a>
+              ${ctx.pagesNav()}
             </nav>
             <article>
               <div class="post-meta">${ctx.formatDate(post.date)} <span class="reading-time">— ${readingTimeText}</span></div>

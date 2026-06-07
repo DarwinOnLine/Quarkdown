@@ -11,6 +11,7 @@ Zero-dependency Markdown SPA blog engine for GitHub Pages.
 - **Syntax highlighting** — via [highlight.js](https://highlightjs.org/) with optional line numbers
 - **i18n** — multi-language support with auto-detection and language switcher
 - **Blog engine** — post index, pagination with ellipsis, tags
+- **Static pages** — standalone Markdown pages (`/{lang}/{slug}`) with nav integration, SEO meta, and custom rendering
 - **Tag pages** — filterable `/blog/tag/{tag}` routes with pagination, post counts, and `/blog/tags` index page
 - **Client-side search** — full-text search overlay (title, description, tags, content) with `Ctrl+K` / `Cmd+K` shortcut
 - **Reading time** — estimated reading time displayed on posts
@@ -80,6 +81,15 @@ const app = new Quarkdown({
   postsDir: 'posts',              // Posts directory
   homeFile: 'home-{lang}.md',     // Home page Markdown file pattern
   postsPerPage: 10,               // Posts per page
+  pagesDir: 'pages',              // Static pages directory
+  pages: {                        // Static pages (optional — see Static Pages section)
+    about: {
+      meta: {
+        en: { title: 'About', description: 'About me', navLabel: 'About' },
+        fr: { title: 'À propos', description: 'À propos de moi', navLabel: 'À propos' },
+      },
+    },
+  },
 
   // Features
   cursorDot: true,                // Mouse-following dot
@@ -133,6 +143,7 @@ const app = new Quarkdown({
   renderHome: (html, ctx) => `<div>...</div>`,
   renderBlog: (data, ctx) => `<div>...</div>`,
   renderPost: (html, post, ctx, { readingTime }) => `<div>...</div>`,
+  renderPage: (html, page, ctx) => `<div>...</div>`,
   renderTag: (data, tag, ctx) => `<div>...</div>`,
   render404: (ctx) => `<div>...</div>`,
 });
@@ -155,6 +166,9 @@ your-site/
 │   └── fr/
 │       ├── index.json
 │       └── mon-article.md
+├── pages/                  # Static pages (optional)
+│   ├── about-en.md
+│   └── about-fr.md
 └── src/                    # Quarkdown source
 ```
 
@@ -175,6 +189,36 @@ your-site/
   }
 ]
 ```
+
+## Static Pages
+
+Beyond the home page and blog, Quarkdown can serve standalone Markdown pages (about, resume, contact...).
+Declare them in the `pages` config object, keyed by slug:
+
+```javascript
+pages: {
+  about: {
+    file: 'pages/about-{lang}.md',  // Optional — default: '<pagesDir>/<slug>-{lang}.md'
+    nav: true,                      // Optional — include in default navs (default: true)
+    meta: {
+      en: { title: 'About', description: 'About me', image: 'assets/images/about-og.png', navLabel: 'About' },
+      fr: { title: 'À propos', description: 'À propos de moi', navLabel: 'À propos' },
+    },
+  },
+},
+```
+
+Each page is served at `/{lang}/{slug}` (e.g. `/en/about`). Content lives in one Markdown file per
+language following the `{slug}-{lang}.md` convention. Raw HTML in the Markdown is preserved, and
+`<script>` tags are executed, so pages can embed interactive content.
+
+- **Navigation** — pages appear automatically in the default navs. Labels resolve from `meta.{lang}.navLabel`,
+  then the `nav.{slug}` translation key, then the slug itself. Set `nav: false` to keep a page out of the navs.
+- **Custom rendering** — provide a `renderPage(html, page, ctx)` renderer for full layout control;
+  `page` contains the slug plus the current language's `meta` entry. `ctx.pagesNav(currentSlug)` builds
+  the page links for custom navs.
+- **SEO** — `meta` feeds the document title, OG tags ([OG builder](#open-graph-builder)) and the
+  [sitemap](#sitemap-builder). Add `pages` to your builder configs (`quarkdown.json` or build scripts).
 
 ## Adding a Language
 

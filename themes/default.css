@@ -1238,3 +1238,12 @@ tr:hover {
     background: rgba(255, 255, 255, 0.03);
 }
 
+/* ===================== STATIC PAGES ===================== */
+
+.static-page {
+    padding: 2rem 0;
+}
+
+.static-page .page-content {
+    margin-top: 1.5rem;
+}

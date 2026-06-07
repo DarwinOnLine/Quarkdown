@@ -28,6 +28,7 @@ function toW3CDate(dateStr) {
  * @param {string} config.postsDir - Posts directory relative to rootDir
  * @param {string} config.rootDir - Root directory for reading/writing
  * @param {string} [config.sitemapFileName] - Output file name (default: 'sitemap.xml')
+ * @param {string[]|Object} [config.pages] - Static page slugs (array) or pages object keyed by slug
  */
 export function buildSitemap(config) {
   const {
@@ -36,7 +37,10 @@ export function buildSitemap(config) {
     postsDir = 'posts',
     rootDir,
     sitemapFileName = 'sitemap.xml',
+    pages = null,
   } = config;
+
+  const pageSlugs = Array.isArray(pages) ? pages : Object.keys(pages || {});
 
   const today = new Date().toISOString().split('T')[0];
   const urls = [];
@@ -44,6 +48,11 @@ export function buildSitemap(config) {
   for (const lang of languages) {
     // Home page
     urls.push({ loc: `${baseUrl}/${lang}`, lastmod: today, priority: '1.0' });
+
+    // Static pages
+    for (const slug of pageSlugs) {
+      urls.push({ loc: `${baseUrl}/${lang}/${slug}`, lastmod: today, priority: '0.7' });
+    }
 
     // Posts
     const indexPath = join(rootDir, postsDir, lang, 'index.json');

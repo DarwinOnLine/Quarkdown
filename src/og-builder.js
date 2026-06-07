@@ -27,6 +27,7 @@ function escapeHtml(str) {
  * @param {string} [config.stylesheetPath] - CSS path (default: 'styles.css')
  * @param {string} [config.hljsTheme] - Highlight.js theme URL
  * @param {string[]} [config.scripts] - Script tags to include
+ * @param {Object} [config.pages] - Static pages keyed by slug: { meta?: { [lang]: { title, description, image } } }
  */
 function resolveI18n(value, lang) {
   if (typeof value === 'object' && value !== null) return value[lang] || Object.values(value)[0];
@@ -44,6 +45,7 @@ export function buildOGPages(config) {
     stylesheetPath = 'styles.css',
     hljsTheme = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css',
     scripts = [],
+    pages = null,
   } = config;
 
   const defaultImg = defaultImage ? `${baseUrl}/${defaultImage}` : '';
@@ -56,7 +58,7 @@ export function buildOGPages(config) {
         <base href="/" />
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="stylesheet" type="text/css" media="screen" href="${stylesheetPath}" />
+        <link rel="stylesheet" type="text/css" media="all" href="${stylesheetPath}" />
 ${hljsTheme ? `        <link rel="stylesheet" href="${hljsTheme}">` : ''}
         <title>${escapeHtml(title)}</title>
         <!-- Open Graph -->
@@ -121,6 +123,18 @@ ${scriptTags}
         })
       );
       (post.tags || []).forEach(tag => tags.add(tag));
+    }
+
+    // Static pages
+    for (const [slug, page] of Object.entries(pages || {})) {
+      const meta = page.meta?.[lang] || {};
+      writeOGFile(join(rootDir, lang, slug, 'index.html'), spaPage({
+        ogType: 'website',
+        title: meta.title ? `${meta.title} - ${langSiteName}` : langSiteName,
+        description: meta.description || langSiteName,
+        image: meta.image ? `${baseUrl}/${meta.image}` : defaultImg,
+        url: `${baseUrl}/${lang}/${slug}`,
+      }));
     }
 
     // Tag pages
